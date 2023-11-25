@@ -1,19 +1,43 @@
 import express from 'express';
 import cors from 'cors';
+import 'dotenv/config';
 
-// SERVER VARIABLES
-const port = 8080;
+import { AppDataSource } from "./data-source.js";
+import { userRouter } from './routes/users.route.js';
 
-const app = express();
+((async () => {
+    // Initialize database
+    const dbConn = await AppDataSource.initialize();
 
-// MIDDLEWARES
-app.use([
-    express.json(),
-    express.urlencoded({extended: true}),
-    cors()
-]);
+    console.log('Database initialized.');
 
-// LISTEN
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
-})
+    const app = express();
+
+    app.set('dbConn', dbConn);
+
+    // MIDDLEWARES
+    app.use([
+        express.json(),
+        express.urlencoded({ extended: true }),
+        cors()
+    ]);
+
+    // Routes
+    app.use('/users', userRouter);
+
+    // server info
+    // Note: can this be improved?
+    app.set('serverInfo', {
+        // FIXME: schema detection
+        schema: 'http',
+        hostname: process.env.FEDIMG_SERVER_HOSTNAME,
+        port: process.env.FEDIMG_SERVER_PORT
+    });
+
+    // LISTEN
+    const appPortNo = process.env.FEDIMG_SERVER_PORT || 8080;
+    app.listen(appPortNo, () => {
+        console.log(`Listening on port ${appPortNo}`)
+    })
+
+}))();
