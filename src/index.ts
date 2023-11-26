@@ -4,6 +4,7 @@ import 'dotenv/config';
 
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
+import { usersApiRouter } from './routes/api/users-api.routes.js';
 
 ((async () => {
     // Initialize database
@@ -24,6 +25,9 @@ import { userRouter } from './routes/users.route.js';
 
     // Routes
     app.use('/users', userRouter);
+    // API routes
+    // FIXME: Need to separate '/api/v1' here
+    app.use('/api/v1/users', usersApiRouter);
 
     // server info
     // Note: can this be improved?

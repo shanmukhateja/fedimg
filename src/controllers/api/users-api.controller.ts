@@ -1,0 +1,37 @@
+import { AppDataSource } from "../../data-source.js";
+import { User } from "../../entity/User.js";
+import { RegisterUserApiPayload } from "../../models/api/register-user-api.model.js";
+import { ServerInfo } from "../../models/server-info.model.js";
+import { generateUserKey } from "../../utils/user.js";
+
+export class UserApiController {
+
+    static async registerUserAPI(serverInfo: ServerInfo, params: RegisterUserApiPayload) {
+        try {
+            const userRepo = AppDataSource.getRepository(User);
+            const publicKey = generateUserKey(serverInfo, params.username);
+
+            // TODO validation
+            // @ts-ignore
+            let user: User = {
+                _id: null,
+                id: publicKey.owner,
+                type: 'Person',
+                preferredUsername: params.username,
+                // Note: User might want to update this :\
+                displayName: params.username,
+                email: params.email,
+                // FIXME: security
+                password: params.password,
+                followers: '',
+                publicKey
+            }
+
+            return await userRepo.create(user)
+                .save()
+        } catch (error) {
+            console.log(error);
+            return error.code;
+        }
+    }
+}

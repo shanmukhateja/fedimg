@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-class UserPublicKey {
+export class UserPublicKey {
     id: string;
     owner: string;
     publicKeyPem: string;
@@ -11,6 +11,9 @@ export class User extends BaseEntity {
     
     @PrimaryGeneratedColumn()
     _id: number;
+
+    @Column({unique: true})
+    id: string;
 
     @Column({type: 'varchar'})
     type = 'Person'
@@ -26,4 +29,10 @@ export class User extends BaseEntity {
 
     @Column({type: 'json'})
     publicKey: UserPublicKey
+
+    @Column({unique: true})
+    email: string;
+
+    @Column({type: 'longtext'})
+    password: string
 }
