@@ -5,7 +5,7 @@ const userRouter = Router();
 
 userRouter.get('/:id', async (req, res) => {
     try {
-        const user = await UserController.getUserById(req.params.id);
+        const user = await UserController.getUserByIdSafe(req.params.id);
         if (!user) {
             res.statusCode = 404;
             // Match error with Mastodon API

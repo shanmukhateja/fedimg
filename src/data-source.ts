@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/User.js";
+import { Image } from "./entity/Image.js";
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
     database: process.env.FEDIMG_DB_NAME || "test",
     synchronize: true,
     logging: 'all',
-    entities: [User],
+    entities: [User, Image],
     migrations: [],
     subscribers: [],
 })

@@ -15,7 +15,16 @@ export class UserController {
 
         if (!user) return null;
 
-        // FIXME: find a better way
+        return user;
+    }
+
+    // FIXME: find a better way
+    static async getUserByIdSafe(username: string): Promise<User> {
+
+        const user = await this.getUserById(username);
+
+        if (!user) return null;
+
         delete user._id;
 
         return user;

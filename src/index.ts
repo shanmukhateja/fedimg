@@ -5,6 +5,7 @@ import 'dotenv/config';
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
 import { usersApiRouter } from './routes/api/users-api.routes.js';
+import { mediaApiRouter } from './routes/media.route.js';
 
 ((async () => {
     // Initialize database
@@ -28,6 +29,9 @@ import { usersApiRouter } from './routes/api/users-api.routes.js';
     // API routes
     // FIXME: Need to separate '/api/v1' here
     app.use('/api/v1/users', usersApiRouter);
+    // FIXME: add static folder for multer
+    app.use('/api/v1/media', mediaApiRouter);
+
 
     // server info
     // Note: can this be improved?
