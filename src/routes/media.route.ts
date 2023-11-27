@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UploadMedaiAPIResponseModel, UploadMediaAPIPayloadModel } from "../models/api/media-api.model";
-import { multerConfig } from "../middlewares/multer.js";
+import { multerConfig } from "../middlewares/multer.middleware.js";
 import { MediaAPIController } from "../controllers/api/media-api.controller.js";
 import { UserController } from "../controllers/user.controller.js";
 import { MediaController } from "../controllers/media.controller.js";
