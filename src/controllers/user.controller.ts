@@ -1,3 +1,4 @@
+import { hash, compare } from "bcrypt";
 import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
 
@@ -28,5 +29,18 @@ export class UserController {
         delete user._id;
 
         return user;
+    }
+
+
+    static async generateHashedPassword(password: string) {
+        const saltRounds = 10;
+
+        return await hash(password, saltRounds)
+    }
+
+
+    static async validatePassword(username: string, password: string) {
+        const user = await this.getUserById(username);
+        return await compare(password, user.password);
     }
 }

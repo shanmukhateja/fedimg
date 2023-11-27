@@ -1,4 +1,5 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { UserController } from "../controllers/user.controller.js";
 
 export class UserPublicKey {
     id: string;
@@ -35,4 +36,9 @@ export class User extends BaseEntity {
 
     @Column({type: 'longtext'})
     password: string
+
+    validPassword(password: string) {
+        return UserController.validatePassword(this.preferredUsername, password);
+    }
+    
 }

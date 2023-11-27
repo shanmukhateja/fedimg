@@ -3,6 +3,7 @@ import { User } from "../../entity/User.js";
 import { RegisterUserApiPayload } from "../../models/api/register-user-api.model.js";
 import { ServerInfo } from "../../models/server-info.model.js";
 import { generateUserKey } from "../../utils/user.js";
+import { UserController } from "../user.controller.js";
 
 export class UserApiController {
 
@@ -12,6 +13,9 @@ export class UserApiController {
             const publicKey = generateUserKey(serverInfo, params.username);
 
             // TODO validation
+
+            const hashedPassword = await UserController.generateHashedPassword(params.password);
+
             // @ts-ignore
             let user: User = {
                 _id: null,
@@ -21,8 +25,7 @@ export class UserApiController {
                 // Note: User might want to update this :\
                 displayName: params.username,
                 email: params.email,
-                // FIXME: security
-                password: params.password,
+                password: hashedPassword,
                 followers: '',
                 publicKey
             }

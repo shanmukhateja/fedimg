@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 
+import passport from 'passport';
+import {passportConfig} from './middlewares/auth.middleware.js';
+
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
 import { usersApiRouter } from './routes/api/users-api.routes.js';
@@ -18,6 +21,11 @@ import { mediaApiRouter } from './routes/media.route.js';
     app.set('dbConn', dbConn);
 
     // MIDDLEWARES
+
+    // passport
+    passport.use(passportConfig);
+    app.use(passport.initialize());
+
     app.use([
         express.json(),
         express.urlencoded({ extended: true }),
