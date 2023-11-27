@@ -5,10 +5,13 @@ import 'dotenv/config';
 import passport from 'passport';
 import {passportConfig} from './middlewares/auth.middleware.js';
 
+import nunjucks from 'nunjucks';
+
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
 import { usersApiRouter } from './routes/api/users-api.routes.js';
 import { mediaApiRouter } from './routes/media.route.js';
+import { viewsRouter } from './routes/views.route.js';
 
 ((async () => {
     // Initialize database
@@ -32,7 +35,17 @@ import { mediaApiRouter } from './routes/media.route.js';
         cors()
     ]);
 
+    // Nunjucks
+    nunjucks.configure('src/views', {
+        autoescape: true,
+        express: app,
+        // FIXME: need to disable in prod
+        dev: true,
+        watch: true
+    })
+
     // Routes
+    app.use('', viewsRouter);
     app.use('/users', userRouter);
     // API routes
     // FIXME: Need to separate '/api/v1' here

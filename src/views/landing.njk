@@ -1,0 +1,48 @@
+{% extends "./base.njk" %}
+
+{% block pageTitle %}
+fedIMG - A federated, photo-sharing platform for the open web.
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <h3>fedIMG</h3>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/signup">Create an Account</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{# section #}
+<section id="main-section-placeholder">
+    <div class="card">
+        <div class="card-body">
+            <div class="px-4 py-5 my-5 text-center">
+                <h1 class="display-5 fw-bold text-body-emphasis">Under construction</h1>
+                <div class="col-lg-6 mx-auto">
+                    <p class="lead mb-4">This page is under construction. Please use the buttons below for available
+                        features.</p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a href="/login" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+                        <a href="/register" class="btn btn-outline-secondary btn-lg px-4">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
