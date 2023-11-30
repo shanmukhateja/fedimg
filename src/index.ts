@@ -3,7 +3,6 @@ import cors from 'cors';
 import 'dotenv/config';
 
 import passport from 'passport';
-import {passportConfig} from './middlewares/auth.middleware.js';
 
 import nunjucks from 'nunjucks';
 
@@ -12,6 +11,8 @@ import { userRouter } from './routes/users.route.js';
 import { usersApiRouter } from './routes/api/users-api.routes.js';
 import { mediaApiRouter } from './routes/media.route.js';
 import { viewsRouter } from './routes/views.route.js';
+import { authRouter } from './routes/auth.route.js';
+import { sessionConfig } from './middlewares/auth.middleware.js';
 
 ((async () => {
     // Initialize database
@@ -26,8 +27,8 @@ import { viewsRouter } from './routes/views.route.js';
     // MIDDLEWARES
 
     // passport
-    passport.use(passportConfig);
-    app.use(passport.initialize());
+    app.use(sessionConfig);
+    app.use(passport.session());
 
     app.use([
         express.json(),
@@ -46,6 +47,7 @@ import { viewsRouter } from './routes/views.route.js';
 
     // Routes
     app.use('', viewsRouter);
+    app.use('/auth', authRouter);
     app.use('/users', userRouter);
     // API routes
     // FIXME: Need to separate '/api/v1' here

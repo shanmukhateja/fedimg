@@ -18,21 +18,23 @@ Login | fedIMG
 
     <div class="px-4 py-5 my-5 text-center">
         <main class="form-signin w-100 m-auto">
-            <form enctype="multipart/form-data" action="/login" method="post" class="d-flex flex-column gap-2 w-50">
-                <h1 class="h3 mb-3 fw-normal">
+            <form class="d-flex flex-column gap-3 w-50" action="/auth/login" method="post">
+                <h1 class="fw-bold my-2">fedIMG</h1>
+                <div class="h3 mb-3 fw-normal">
                     Please sign in
-                </h1>
+                </div>
                 <div class="form-floating">
-                    <input type="email" required class="form-control" id="floatingInput" placeholder="name@example.com">
+                    <input type="email" name="email" autofocus class="form-control" id="floatingInput" placeholder="name@example.com" required>
                     <label for="floatingInput">Email address</label>
                 </div>
                 <div class="form-floating">
-                    <input type="password" required class="form-control" id="floatingPassword" placeholder="Password">
+                    <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                     <label for="floatingPassword">Password</label>
                 </div>
 
-                <button class="mt-4 btn btn-primary w-100 py-2" type="submit">Sign in</button>
-                <p class="mt-5 mb-3 text-body-secondary">© 2023</p>
+                <button class="mt-4 btn btn-primary btn-lg w-100" type="submit">Sign in</button>
+                <a class="mt-2 btn btn-outline-secondary btn-lg w-100" href="/auth/register">Create an account</a>
+                <p class="mt-5 mb-3 text-body-secondary">Copyright © 2023 fedIMG. All rights reserved.</p>
             </form>
         </main>
     </div>

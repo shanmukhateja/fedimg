@@ -2,21 +2,21 @@ import { Router } from "express";
 import { UploadMedaiAPIResponseModel, UploadMediaAPIPayloadModel } from "../models/api/media-api.model";
 import { multerConfig } from "../middlewares/multer.middleware.js";
 import { MediaAPIController } from "../controllers/api/media-api.controller.js";
-import { UserController } from "../controllers/user.controller.js";
 import { MediaController } from "../controllers/media.controller.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
+import passport from "passport";
+import { User } from "../entity/User.js";
 
 export const mediaApiRouter = Router();
 
 
-mediaApiRouter.post('', ensureAuthenticated, multerConfig.single('media'), async (req, res) => {
+mediaApiRouter.post('', passport.authenticate('session'), ensureAuthenticated, multerConfig.single('media'), async (req, res) => {
     try {
         const params: UploadMediaAPIPayloadModel = {
             file: req.file,
         }
 
-        // FIXME: user should be detected using Authorization header
-        const user = await UserController.getUserById('suryatejak');
+        const user = req.user as User;
         const media = await MediaAPIController.createMediaEntry(params, user);
         let response: UploadMedaiAPIResponseModel = {
             id: media._id,

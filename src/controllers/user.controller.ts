@@ -31,6 +31,18 @@ export class UserController {
         return user;
     }
 
+    static async getUserByKey(key: string, value: any) {
+        const userRepo = AppDataSource.getRepository(User);
+
+        const user = await userRepo.findOneBy({
+            [key]: value
+        })
+
+        if (!user) return null;
+
+        return user;
+    }
+
 
     static async generateHashedPassword(password: string) {
         const saltRounds = 10;
