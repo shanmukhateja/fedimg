@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller.js";
 import passport from "passport";
+import url from 'url';
+import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
+import { User } from "../entity/User.js";
 
 export const authRouter = Router();
 
@@ -13,13 +16,17 @@ authRouter.get('/register', (req, res) => {
 })
 
 authRouter.post('/login', passport.authenticate('session'), async (req, res) => {
-    const {email, password} = req.body;
-    const userOrError = await AuthController.processLogin(email, password);
+    const { email, password } = req.body;
+    const userOrError: User | APIErrorCodes = await AuthController.processLogin(email, password);
 
-    if (typeof userOrError == 'string') {
+    if (!(userOrError instanceof User)) {
         // error
         res.statusCode = 401;
-        res.send(userOrError);
+        const path = url.format({
+            pathname: '/auth/login',
+            query: { ...generateErrorResponse(userOrError as APIErrorCodes) }
+        });
+        res.redirect(path);
         return;
     }
 
@@ -28,6 +35,7 @@ authRouter.post('/login', passport.authenticate('session'), async (req, res) => 
             res.sendStatus(401);
             return;
         }
+        // FIXME: redirect
         res.sendStatus(200);
     });
 
