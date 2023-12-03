@@ -13,6 +13,7 @@ import { mediaApiRouter } from './routes/media.route.js';
 import { viewsRouter } from './routes/views.route.js';
 import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
+import { isProduction } from './utils/misc.js';
 
 ((async () => {
     // Initialize database
@@ -40,8 +41,7 @@ import { sessionConfig } from './middlewares/auth.middleware.js';
     nunjucks.configure('src/views', {
         autoescape: true,
         express: app,
-        // FIXME: need to disable in prod
-        dev: true,
+        dev: !isProduction(),
         watch: true
     })
 

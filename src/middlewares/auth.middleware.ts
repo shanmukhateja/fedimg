@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import session from 'express-session';
 import passport from 'passport';
 import { User } from '../entity/User.js';
+import { isProduction } from "../utils/misc.js";
 
 export function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {
@@ -10,11 +11,10 @@ export function ensureAuthenticated(req: Request, res: Response, next: NextFunct
     res.sendStatus(401);
 }
 
-// FIXME: `secure` should be true in prod.
 export const sessionConfig = session({ 
     secret: process.env.FEDIMG_SESSION_SECRET, 
     cookie: { 
-        secure: false
+        secure: isProduction()
     }
 });
 
