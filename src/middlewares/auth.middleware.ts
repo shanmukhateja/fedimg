@@ -15,7 +15,9 @@ export const sessionConfig = session({
     secret: process.env.FEDIMG_SESSION_SECRET, 
     cookie: { 
         secure: isProduction()
-    }
+    },
+    resave: false,
+    saveUninitialized: false
 });
 
 passport.serializeUser(function (user: User, cb) {
