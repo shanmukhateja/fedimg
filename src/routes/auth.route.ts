@@ -4,6 +4,7 @@ import passport from "passport";
 import url from 'url';
 import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
 import { User } from "../entity/User.js";
+import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 
 export const authRouter = Router();
 
@@ -35,8 +36,15 @@ authRouter.post('/login', passport.authenticate('session'), async (req, res) => 
             res.sendStatus(401);
             return;
         }
-        // FIXME: redirect
-        res.sendStatus(200);
+        res.redirect('/home')
     });
 
+})
+
+authRouter.get('/logout', ensureAuthenticated, (req, res) => {
+    req.logOut({keepSessionInfo: false}, (err) => {
+        if (err) res.sendStatus(422);
+
+        res.redirect('/auth/login');
+    })
 })

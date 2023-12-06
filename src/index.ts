@@ -14,6 +14,7 @@ import { viewsRouter } from './routes/views.route.js';
 import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
 import { isProduction } from './utils/misc.js';
+import { homeRouter } from './routes/home.route.js';
 
 ((async () => {
     // Initialize database
@@ -49,6 +50,7 @@ import { isProduction } from './utils/misc.js';
     app.use('', viewsRouter);
     app.use('/auth', authRouter);
     app.use('/users', userRouter);
+    app.use('/home', homeRouter);
     // API routes
     // FIXME: Need to separate '/api/v1' here
     app.use('/api/v1/users', usersApiRouter);

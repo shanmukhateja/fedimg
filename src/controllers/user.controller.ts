@@ -1,6 +1,7 @@
 import { hash, compare } from "bcrypt";
 import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
+import { Response } from "express";
 
 export class UserController {
 
@@ -54,5 +55,21 @@ export class UserController {
     static async validatePassword(username: string, password: string) {
         const user = await this.getUserById(username);
         return await compare(password, user.password);
+    }
+
+    static async renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
+        res.render(pageURL, {
+            userName: user.displayName,
+            userEmail: user.email
+        })
+    }
+
+    static async updateDisplayName(username: string, newName: string) {
+        const userRepo = AppDataSource.getRepository(User);
+
+        return await userRepo.update({ preferredUsername: username }, {
+            displayName: newName
+        });
+        
     }
 }

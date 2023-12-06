@@ -1,0 +1,70 @@
+{% extends "base.njk" %}
+
+{% block body %}
+
+{# FIXME: move to separate file #}
+<style>
+    .action-account-dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .action-account-dropdown-toggle .ti {
+        font-size: xx-large;
+    }
+
+    .user-display-name {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .user-display-email {
+        font-size: 12px;
+    }
+</style>
+
+
+{# navbar #}
+<nav class="navbar navbar-expand-lg bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <h3>fedIMG</h3>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle action-account-dropdown-toggle" href="#" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ti ti-user-circle"></i>&nbsp;Account
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="my-3">
+                            <a href="/users/profile" class="dropdown-item d-flex align-items-center gap-2">
+                                <i class="ti ti-user" style="font-size: 50px;"></i>
+                                <div class="d-inline-flex flex-column">
+                                    <div class="user-display-name">{{userName}}</div>
+                                    <div class="user-email">{{userEmail}}</div>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="/auth/logout"><i class="ti ti-logout"></i>&nbsp;Logout</a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% block content %} {%endblock content %}
+
+{% endblock %}

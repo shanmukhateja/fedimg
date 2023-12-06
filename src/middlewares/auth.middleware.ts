@@ -8,7 +8,7 @@ export function ensureAuthenticated(req: Request, res: Response, next: NextFunct
     if (req.isAuthenticated()) {
         return next()
     }
-    res.sendStatus(401);
+    res.redirect('/auth/login?description=Please login.');
 }
 
 export const sessionConfig = session({ 
@@ -22,12 +22,7 @@ export const sessionConfig = session({
 
 passport.serializeUser(function (user: User, cb) {
     process.nextTick(function () {
-        return cb(null, {
-            _id: user._id,
-            id: user.id,
-            username: user.preferredUsername,
-            email: user.email
-        });
+        return cb(null, {...user});
     });
 })
 
