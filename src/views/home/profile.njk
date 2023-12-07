@@ -14,36 +14,56 @@
     }
 </style>
 
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div class="container">
+<div class="card">
+    <div class="card-body">
+        <div class="container">
 
-                <div class="row">
-                    <div class="col-12">
-                        <div class="row align-items-center justify-content-center">
-                            <div class="col-1">
-                                <div class="row flex-column">
-                                    <img src="https://placehold.co/100x160" alt="profile pic"
-                                    class="img-fluid">
-                                    <button id="btn-update-photo" class="btn btn-link" style="font-size: 12px;"
+            <div class="row">
+                <div class="col-12">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-1">
+                            <div class="row flex-column">
+                                <img src="https://placehold.co/100x160" alt="profile pic" class="img-fluid">
+                                <button id="btn-update-photo" class="btn btn-link" style="font-size: 12px;"
                                     data-bs-toggle="modal" data-bs-target="#updatePhotoModal">Update Photo</button>
-                                </div>
                             </div>
-                            <div class="col-6">
-                                <div class="row flex-column gap-1">
-                                    <h2>
-                                        {{userName}}
-                                        <sup>
-                                            <button id="btn-edit-profile-name" class="btn btn-link"
-                                                data-bs-toggle="modal" data-bs-target="#displayNameModal">
-                                                <i class="ti ti-pencil" data-bs-tooltip="Update Name"></i>
-                                            </button>
-                                        </sup>
-                                    </h2>
-                                    <div>
-                                        <i class="ti ti-at"></i>
-                                        <a href="mailto:{{userEmail}}">{{userEmail}}</a>
+                        </div>
+                        <div class="col-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row flex-column gap-1">
+                                        <h2>
+                                            {{userName}}
+                                            <sup>
+                                                <button id="btn-edit-profile-name" class="btn btn-link"
+                                                    data-bs-toggle="modal" data-bs-target="#displayNameModal">
+                                                    <i class="ti ti-pencil" data-bs-tooltip="Update Name"></i>
+                                                </button>
+                                            </sup>
+                                        </h2>
+                                        <div>
+                                            <i class="ti ti-at"></i>
+                                            <a href="mailto:{{userEmail}}">{{userEmail}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# Follow button #}
+                                {% if metadata.showFollowButton %}
+                                <div class="col-6">
+                                    <button class="btn btn-primary">Follow</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <strong>Followers:</strong> {{metadata.followersCount}}
+                                    </div>
+                                    <div class="col">
+                                        <strong>Following:</strong> {{metadata.followingCount}}
+                                    </div>
+                                    <div class="col">
+                                        <strong>Posts:</strong> {{metadata.postsCount}}
                                     </div>
                                 </div>
                             </div>
@@ -53,60 +73,78 @@
             </div>
         </div>
     </div>
-
-    {# Update profile name modal #}
-    <div id="displayNameModal" class="modal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Name</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Please set a "Display Name" for your profile below.</p>
-
-                    <form id="displayNameForm" action="/users/profile/update-name" method="post">
-                        <div class="mb-3">
-                            <label for="displayName" class="form-label">Display Name</label>
-                            <input type="text" class="form-control" placeholder="Ex: John Mastodon" id="displayName"
-                                name="displayName" required autocomplete="name" value="{{userName}}">
-                            <div class="form-text">This name will be visible to viewers of your profile.</div>
-                        </div>
-
-                        <input class="btn btn-primary float-end" type="submit" value="Submit">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    {# Update profile photo modal #}
-    <div id="updatePhotoModal" class="modal modal-lg" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Photo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updatePhotoForm" action="/users/profile/update-photo" method="post">
-                        <div class="mb-3">
-                            <label for="updatePhoto" class="form-label">Profile Photo</label>
-                            <input type="file" accept="image/png;image/jpg/image/jpeg" class="form-control" id="updatePhoto" name="updatePhoto" required>
-                            <div class="form-text">JPG/PNG are supported.</div>
-                        </div>
-                        <div class="mb-3 text-center">
-                            <img id="update-photo-preview" src="#" alt="Preview will be visible here." style="width: 100px;height: 60px;">
-                        </div>
-
-                        <input class="btn btn-primary float-end" type="submit" value="Submit">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
+
+{# image previews #}
+{% if posts.length>0 %}
+<div class="container my-4">
+
+    <div class="row">
+        {% for img in posts %}
+        <div class="col-4">
+            <a href="/images/{{img._id}}">
+                <img src="{{img.path}}" alt="{{img.alt}}" class="img-fluid">
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{# Update profile name modal #}
+<div id="displayNameModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please set a "Display Name" for your profile below.</p>
+
+                <form id="displayNameForm" action="/users/profile/update-name" method="post">
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Display Name</label>
+                        <input type="text" class="form-control" placeholder="Ex: John Mastodon" id="displayName"
+                            name="displayName" required autocomplete="name" value="{{userName}}">
+                        <div class="form-text">This name will be visible to viewers of your profile.</div>
+                    </div>
+
+                    <input class="btn btn-primary float-end" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Update profile photo modal #}
+<div id="updatePhotoModal" class="modal modal-lg" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updatePhotoForm" action="/users/profile/update-photo" method="post">
+                    <div class="mb-3">
+                        <label for="updatePhoto" class="form-label">Profile Photo</label>
+                        <input type="file" accept="image/png;image/jpg/image/jpeg" class="form-control" id="updatePhoto"
+                            name="updatePhoto" required>
+                        <div class="form-text">JPG/PNG are supported.</div>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <img id="update-photo-preview" src="#" alt="Preview will be visible here."
+                            style="width: 100px;height: 60px;">
+                    </div>
+
+                    <input class="btn btn-primary float-end" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block script %}
@@ -120,7 +158,7 @@
     displayNameModal.addEventListener('shown.bs.modal', () => {
         displayNameInput.focus();
     });
-    
+
     displayNameModal.addEventListener('hide.bs.modal', () => {
         displayNameForm.reset();
     });
@@ -130,7 +168,7 @@
     const updatePhotoForm = document.getElementById('updatePhotoForm');
     const fileInput = updatePhotoModal.querySelector('#updatePhoto');
     const preview = updatePhotoModal.querySelector('#update-photo-preview');
-    
+
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {

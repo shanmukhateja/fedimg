@@ -26,7 +26,7 @@ export class UserApiController {
                 displayName: params.username,
                 email: params.email,
                 password: hashedPassword,
-                followers: '',
+                followers: [],
                 publicKey
             }
 

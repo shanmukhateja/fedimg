@@ -2,6 +2,7 @@ import { hash, compare } from "bcrypt";
 import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
 import { Response } from "express";
+import { MediaController } from "./media.controller.js";
 
 export class UserController {
 
@@ -28,6 +29,7 @@ export class UserController {
         if (!user) return null;
 
         delete user._id;
+        delete user.password;
 
         return user;
     }
@@ -58,9 +60,21 @@ export class UserController {
     }
 
     static async renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
-        res.render(pageURL, {
+    const postsCount = await MediaController.getMediaCountByUser(user.preferredUsername);
+    // FIXME: implement
+    const showFollowButton = true;
+
+    const posts = await MediaController.getMediaByUser(user.preferredUsername);
+    res.render(pageURL, {
             userName: user.displayName,
-            userEmail: user.email
+            userEmail: user.email,
+            metadata: {
+                followersCount: (user.followers || []).length,
+                followingCount: user.followingCount,
+                postsCount,
+                showFollowButton,
+            },
+            posts
         })
     }
 

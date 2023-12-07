@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserController } from "../controllers/user.controller.js";
 
 export class UserPublicKey {
@@ -25,8 +25,12 @@ export class User extends BaseEntity {
     @Column({unique: true})
     preferredUsername: string;
 
-    @Column()
-    followers: string
+    @ManyToMany(() => User)
+    followers: User[];
+
+    // FIXME: setup callbacks to increment/decrement this value.
+    @Column({default: 0, type: 'bigint'})
+    followingCount: number;
 
     @Column({type: 'json'})
     publicKey: UserPublicKey
