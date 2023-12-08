@@ -36,13 +36,20 @@ authRouter.post('/login', passport.authenticate('session'), async (req, res) => 
             res.sendStatus(401);
             return;
         }
-        res.redirect('/home')
+        const isJSONOrJSONLD = req.accepts('json', 'application/json', 'application/ld+json', 'application/activity+json');
+        if (!isJSONOrJSONLD) {
+            res.redirect('/home');
+            return;
+        }
+
+        // FIXME: JSON+LD
+        res.send(userOrError);
     });
 
 })
 
 authRouter.get('/logout', ensureAuthenticated, (req, res) => {
-    req.logOut({keepSessionInfo: false}, (err) => {
+    req.logOut({ keepSessionInfo: false }, (err) => {
         if (err) res.sendStatus(422);
 
         res.redirect('/auth/login');
