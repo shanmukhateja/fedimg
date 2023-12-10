@@ -6,3 +6,5 @@ dist/
 tmp/
 temp/
 .env
+public/**/*
+!public/.gitkeep

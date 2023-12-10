@@ -4,6 +4,7 @@
          "es2021"
       ],
       "target": "ES6",
+      "module": "ESNext",
       "moduleResolution": "node",
       "allowSyntheticDefaultImports": true,
       "outDir": "./dist",

@@ -15,6 +15,7 @@ import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
 import { isProduction } from './utils/misc.js';
 import { homeRouter } from './routes/home.route.js';
+import { getStaticAssetsPath } from './utils/path.js';
 
 ((async () => {
     // Initialize database
@@ -45,6 +46,9 @@ import { homeRouter } from './routes/home.route.js';
         dev: !isProduction(),
         watch: true
     })
+
+    // multer
+    app.use('/static', express.static(getStaticAssetsPath()));
 
     // Routes
     app.use('', viewsRouter);

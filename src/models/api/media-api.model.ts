@@ -1,3 +1,5 @@
+import { ServerInfo } from "../server-info.model";
+
 export interface UploadMediaAPIPayloadFileModel {
     fieldname: string,
     originalname: string,
@@ -9,9 +11,11 @@ export interface UploadMediaAPIPayloadFileModel {
     size: number
 }
 
+export type UploadMediaAPIInternalPayloadModel = Exclude<UploadMediaAPIPayloadModel, ServerInfo>
+
 export interface UploadMediaAPIPayloadModel {
     file: UploadMediaAPIPayloadFileModel,
-    description?: string
+    serverInfo: ServerInfo
 }
 
 export interface UploadMedaiAPIResponseModel {
