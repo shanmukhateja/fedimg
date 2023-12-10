@@ -15,6 +15,7 @@ export type UploadMediaAPIInternalPayloadModel = Exclude<UploadMediaAPIPayloadMo
 
 export interface UploadMediaAPIPayloadModel {
     file: UploadMediaAPIPayloadFileModel,
+    alt?: string,
     serverInfo: ServerInfo
 }
 

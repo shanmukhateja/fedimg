@@ -82,9 +82,19 @@
     <div class="row">
         {% for img in posts %}
         <div class="col-4">
-            <a href="/images/{{img._id}}">
-                <img src="{{img.path}}" alt="{{img.alt}}" class="img-fluid">
-            </a>
+            <div class="card">
+                <div class="card-body">
+                    <a class="d-flex flex-column gap-1" href="/images/{{img._id}}">
+                        <div>
+                            <img src="{{img.path}}" alt="{{img.alt}}" class="img-fluid">
+                        </div>
+                    </a>
+                </div>
+                {# Alt text #}
+                <div class="card-footer">
+                    <div>{{img.alt}}</div>
+                </div>
+            </div>
         </div>
         {% endfor %}
     </div>

@@ -14,6 +14,7 @@ mediaApiRouter.post('', passport.authenticate('session'), ensureAuthenticated, m
     try {
         const params: UploadMediaAPIPayloadModel = {
             file: req.file,
+            alt: req.body.alt,
             serverInfo: req.app.get('serverInfo')
         }
 

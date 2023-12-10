@@ -6,13 +6,7 @@ import { isProduction } from "../utils/misc.js";
 
 export function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {
-        if (req.accepts('*/*', 'text/html')) {
-            res.redirect('/auth/login?description=Please login.');
-            return;
-        } else {
-            next();
-            return;
-        }
+        next();
     } else {
         return res.sendStatus(401);
     }

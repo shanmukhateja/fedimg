@@ -33,17 +33,20 @@ authRouter.post('/login', passport.authenticate('session'), async (req, res) => 
 
     req.login(userOrError, err => {
         if (err) {
-            res.sendStatus(401);
-            return;
-        }
-        const isJSONOrJSONLD = req.accepts('json', 'application/json', 'application/ld+json', 'application/activity+json');
-        if (!isJSONOrJSONLD) {
-            res.redirect('/home');
+            res.sendStatus(422);
             return;
         }
 
-        // FIXME: JSON+LD
-        res.send(userOrError);
+        // Check if HTML is requested
+        if (req.accepts('text/html')) {
+            res.redirect('/home');
+            return;
+        } else if (req.accepts('application/json', 'application/ld+json', 'application/activity+json')) {
+            // FIXME: JSON+LD
+            res.send(userOrError);
+        } else {
+            res.sendStatus(500)
+        }
     });
 
 })

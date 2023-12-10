@@ -13,6 +13,9 @@ export class Image extends BaseEntity {
     @Column({type: 'longtext'})
     path: string;
 
+    @Column({nullable: true})
+    alt: string;
+
     @ManyToOne(() => User, u => u._id, {nullable: false})
     user: Relation<User>;
 
