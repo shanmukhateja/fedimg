@@ -16,6 +16,9 @@ export class User extends BaseEntity {
     @Column({unique: true})
     id: string;
 
+    @Column({nullable: true})
+    avatar: string;
+
     @Column({type: 'varchar'})
     type = 'Person'
 
@@ -39,7 +42,7 @@ export class User extends BaseEntity {
     email: string;
 
     @Column({type: 'longtext'})
-    password: string
+    password: string;
 
     validPassword(password: string) {
         return UserController.validatePassword(this.preferredUsername, password);

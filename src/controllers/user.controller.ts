@@ -3,6 +3,9 @@ import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
 import { Response } from "express";
 import { MediaController } from "./media.controller.js";
+import { verifyUserIsLocal } from "../utils/user.js";
+import { Image } from "../entity/Image.js";
+import { RenderPagePayload } from "../models/render-page-response.model.js";
 
 export class UserController {
 
@@ -60,22 +63,63 @@ export class UserController {
     }
 
     static async renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
-    const postsCount = await MediaController.getMediaCountByUser(user.preferredUsername);
-    // FIXME: implement
-    const showFollowButton = true;
+        const isUserLocal = verifyUserIsLocal(res.app.get('serverInfo'), user.email);
 
-    const posts = await MediaController.getMediaByUser(user.preferredUsername);
-    res.render(pageURL, {
-            userName: user.displayName,
-            userEmail: user.email,
-            metadata: {
+        // remote accounts don't support listing posts or post count
+        let postsCount = 0;
+        let posts: Image[] = [];
+        if (isUserLocal) {
+            postsCount = await MediaController.getMediaCountByUser(user.preferredUsername);
+            posts = await MediaController.getMediaByUser(user.preferredUsername);
+        }
+
+        // FIXME: implement
+        const showFollowButton = true;
+
+        const isUserSameAsProfileUser = (res.req.user as User)?._id === user._id;
+
+        let renderPayload = {
+            isLoggedIn: res.req.isAuthenticated(),
+            showProfileEditOptions: isUserSameAsProfileUser,
+        } as RenderPagePayload
+
+        // Inject currently logged-in user info (if available)
+        if (renderPayload.isLoggedIn) {
+            const user = res.req.user as User;
+            renderPayload.loggedInUser = {
+                userName: user?.displayName,
+                userEmail: user?.email,
+                userAvatar: user?.avatar,
+            }
+        }
+
+        if (isUserSameAsProfileUser) {
+            // we'll be rendering profile of logged in user.
+            renderPayload.metadata = {
+                // FIXME: remove this hack
                 followersCount: (user.followers || []).length,
                 followingCount: user.followingCount,
                 postsCount,
                 showFollowButton,
-            },
-            posts
-        })
+            }
+            renderPayload.profileUser = renderPayload.loggedInUser;
+            renderPayload.posts = posts;
+        } else {
+            // not the logged=in user
+            renderPayload.metadata = {
+                followersCount: 0,
+                followingCount: 0,
+                postsCount: 0,
+                showFollowButton,
+            }
+            renderPayload.profileUser = {
+                userName: user.displayName,
+                userEmail: user.email,
+                userAvatar: user.avatar,
+            }
+            renderPayload.posts= [];
+        }
+        res.render(pageURL, renderPayload)
     }
 
     static async updateDisplayName(username: string, newName: string) {
@@ -84,6 +128,6 @@ export class UserController {
         return await userRepo.update({ preferredUsername: username }, {
             displayName: newName
         });
-        
+
     }
 }

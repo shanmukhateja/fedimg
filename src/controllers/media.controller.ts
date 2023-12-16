@@ -9,7 +9,7 @@ export class MediaController {
         return await mediaRepo.findOneBy({_id: id});
     }
 
-    static async getMediaByUser(username: string) {
+    static async getMediaByUser(username: string): Promise<Image[]> {
         const mediaRepo = AppDataSource.getRepository(Image);
 
         const queryBuilder = mediaRepo.createQueryBuilder('image');

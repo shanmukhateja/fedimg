@@ -2,6 +2,8 @@ import { Router } from "express";
 import { UserController } from "../controllers/user.controller.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 import { User } from "../entity/User.js";
+import { verifyUserIsLocal } from "../utils/user.js";
+import { UserLookupController } from "../controllers/user-lookup.controller.js";
 
 const userRouter = Router();
 
@@ -12,7 +14,14 @@ userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
 userRouter.get('/:id', async (req, res) => {
     try {
         const userId = req.params.id;
-        const user = await UserController.getUserByIdSafe(userId);
+        const isUserLocal = verifyUserIsLocal(req.app.get('serverInfo'), userId);
+        let user = null;
+        if (isUserLocal) {
+            user = await UserController.getUserByIdSafe(userId);
+        } else {
+            // Sends a 'mock' User.entity.ts object
+            user = await UserLookupController.lookupUser(userId);
+        }
         if (!user) {
             res.statusCode = 404;
             // Match error with Mastodon API
@@ -24,7 +33,9 @@ userRouter.get('/:id', async (req, res) => {
         const isHTMLRequired = req.accepts('html');
 
         if (isHTMLRequired) {
-            UserController.renderPageWithUserInfo('home/profile.njk', req.user as User, res);
+            let determineUser: User = null;
+            determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
+            UserController.renderPageWithUserInfo('home/profile.njk', determineUser, res);
             return;
         }
 
