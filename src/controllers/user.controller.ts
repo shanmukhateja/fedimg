@@ -33,6 +33,7 @@ export class UserController {
 
         delete user._id;
         delete user.password;
+        delete user.privateKey;
 
         return user;
     }

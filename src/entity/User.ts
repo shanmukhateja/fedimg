@@ -1,11 +1,6 @@
 import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserController } from "../controllers/user.controller.js";
-
-export class UserPublicKey {
-    id: string;
-    owner: string;
-    publicKeyPem: string;
-}
+import { UserPublicKey } from "../models/api/user-keys.model.js";
 
 @Entity()
 export class User extends BaseEntity {
@@ -37,6 +32,9 @@ export class User extends BaseEntity {
 
     @Column({type: 'json'})
     publicKey: UserPublicKey
+
+    @Column({type: 'longtext'})
+    privateKey: string;
 
     @Column({unique: true})
     email: string;

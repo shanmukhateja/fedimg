@@ -1,5 +1,6 @@
-import { UserPublicKey } from "../entity/User";
+import { generateKeyPair } from "crypto";
 import { ServerInfo } from "../models/server-info.model.js";
+import { UserKeysInfo } from "../models/api/user-keys.model.js";
 
 export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): boolean {
     const split = userNameOrEmail.split('@');
@@ -9,7 +10,6 @@ export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: strin
         // const username = split[1];
         const domain = split[2];
         return domain == serverInfo.hostname;
-        
     }
     // TODO: add support for usernames only!
 
@@ -17,15 +17,44 @@ export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: strin
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {
-    return `${serverInfo.schema}://${serverInfo.hostname}:${serverInfo.port}/users/${username}`    
+    return `${serverInfo.schema}://${serverInfo.hostname}:${serverInfo.port}/users/${username}`
 }
 
 
 // FIXME: implement
-export function generateUserKey(serverInfo: ServerInfo, username: string): UserPublicKey {
-    return {
-        id: 'stub',
-        owner: generateUserId(serverInfo, username),
-        publicKeyPem: 'stub'
-    };
+export async function generateUserKey(serverInfo: ServerInfo, username: string): Promise<UserKeysInfo> {
+    return new Promise((resolve, reject) => {
+
+        generateKeyPair(
+            'ed25519', {
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem'
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem'
+            },
+        },
+            (err, publicKey, privateKey) => {
+
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                const owner = generateUserId(serverInfo, username);
+                const responsePayload = {
+                    privateKey,
+                    userPublicKey: {
+                        id: `${owner}#main-key`,
+                        owner,
+                        publicKeyPem: publicKey
+                    }
+                }
+
+                resolve(responsePayload);
+            }
+        )
+    })
 }

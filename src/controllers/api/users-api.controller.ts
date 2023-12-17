@@ -10,7 +10,7 @@ export class UserApiController {
     static async registerUserAPI(serverInfo: ServerInfo, params: RegisterUserApiPayload) {
         try {
             const userRepo = AppDataSource.getRepository(User);
-            const publicKey = generateUserKey(serverInfo, params.username);
+            const {userPublicKey: publicKey, privateKey} = await generateUserKey(serverInfo, params.username);
 
             // TODO validation
 
@@ -22,12 +22,13 @@ export class UserApiController {
                 id: publicKey.owner,
                 type: 'Person',
                 preferredUsername: params.username,
-                // Note: User might want to update this :\
+                // Note: User can update this after login
                 displayName: params.username,
                 email: params.email,
                 password: hashedPassword,
                 followers: [],
-                publicKey
+                publicKey,
+                privateKey
             }
 
             return await userRepo.create(user)
