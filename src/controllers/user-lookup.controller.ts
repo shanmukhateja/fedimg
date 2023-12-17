@@ -8,8 +8,11 @@ export class UserLookupController {
         const split = userNameOrEmail.split('@');
         const isEmail = split.length > 1;
         if (isEmail) {
-            const username = split[1];
-            const domain = split[2];
+            // FIXME: find a better way
+            const usernameIndex = userNameOrEmail.startsWith('@') ? 1: 0;
+            const domainIndex = userNameOrEmail.startsWith('@') ? 2: 1;
+            const username = split[usernameIndex];
+            const domain = split[domainIndex];
 
             // Ask domain about the user
             let strippedEmail = userNameOrEmail;
