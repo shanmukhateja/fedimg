@@ -45,6 +45,8 @@ export class UserLookupController {
                     avatar: remoteUser.icon?.url,
                     preferredUsername: remoteUser.preferredUsername,
                     email: isEmail ? userNameOrEmail : `@${username}@${domain}`,
+                    tags: remoteUser.tag,
+                    attachments: remoteUser.attachment
                 };
 
                 return user;

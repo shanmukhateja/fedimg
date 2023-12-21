@@ -91,6 +91,10 @@ export class UserController {
                 userName: user?.displayName,
                 userEmail: user?.email,
                 userAvatar: user?.avatar,
+                // Note: Pixelfed doesn't support this
+                userTags: [],
+                // Note: Pixelfed doesn't support this
+                userAttachments: []
             }
         }
 
@@ -113,10 +117,14 @@ export class UserController {
                 postsCount: 0,
                 showFollowButton,
             }
-            renderPayload.profileUser = {
+            renderPayload.profileUser = {   
                 userName: user.displayName,
                 userEmail: user.email,
                 userAvatar: user.avatar,
+                // Note: Pixelfed doesn't support it
+                userTags: user.tags,
+                // Note: Pixelfed doesn't support it
+                userAttachments: user.attachments
             }
             renderPayload.posts= [];
         }

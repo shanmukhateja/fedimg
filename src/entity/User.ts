@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserController } from "../controllers/user.controller.js";
 import { UserPublicKey } from "../models/api/user-keys.model.js";
+import { Attachment, Tag } from "../models/user-info-response.model.js";
 
 @Entity()
 export class User extends BaseEntity {
@@ -41,6 +42,12 @@ export class User extends BaseEntity {
 
     @Column({type: 'longtext'})
     password: string;
+
+    @Column({type: 'longtext'})
+    tags: Tag[];
+    
+    @Column({type: 'longtext'})
+    attachments: Attachment[];
 
     validPassword(password: string) {
         return UserController.validatePassword(this.preferredUsername, password);

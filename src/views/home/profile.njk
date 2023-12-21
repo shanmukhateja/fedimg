@@ -12,6 +12,14 @@
         height: 20px;
         background-color: red;
     }
+    .attachment-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .attachment-item .invisible {
+        display: none !important;
+    }
 </style>
 
 <div class="card">
@@ -39,9 +47,9 @@
                         <div class="col-6">
                             <div class="row">
                                 <div class="col">
-                                    <div class="row flex-column gap-1">
+                                    <div class="row flex-column gap-3">
                                         {# FIXME: parse emoji #}
-                                        <h2>
+                                        <h2 class="m-0">
                                             {{profileUser.userName}}
                                             {% if showProfileEditOptions %}
                                             <sup>
@@ -52,10 +60,29 @@
                                             </sup>
                                             {% endif %}
                                         </h2>
-                                        <div>
-                                            <i class="ti ti-at"></i>
-                                            <a href="mailto:{{profileUser.userEmail}}">{{profileUser.userEmail}}</a>
+                                        {% if profileUser.userAttachments %}
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% for attachment in profileUser.userAttachments %}
+                                            {# Note: need to support more types #}
+                                                {% if attachment.type == 'PropertyValue' %}
+                                                <div class="attachment-item">
+                                                    <i class="ti ti-link text-primary"></i>
+                                                    {# FIXME: improve safety #}
+                                                    {{attachment.value | safe}}
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
+                                        {% endif %}
+                                        {% if profileUser.userTags %}
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% for tag in profileUser.userTags %}
+                                                <a href="{{tag.href}}" target="_blank">
+                                                    <span class="badge rounded-pill text-bg-secondary">{{tag.name}}</span>
+                                                </a>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {# Follow button #}
