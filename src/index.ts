@@ -6,6 +6,8 @@ import passport from 'passport';
 
 import nunjucks from 'nunjucks';
 
+import morgan from 'morgan';
+
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
 import { usersApiRouter } from './routes/api/users-api.routes.js';
@@ -28,6 +30,9 @@ import { getStaticAssetsPath } from './utils/path.js';
     app.set('dbConn', dbConn);
 
     // MIDDLEWARES
+
+    // logging
+    app.use(morgan(isProduction() ? 'short' : 'dev'));
 
     // passport
     app.use(sessionConfig);
