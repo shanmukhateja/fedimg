@@ -6,10 +6,10 @@ export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: strin
     const split = userNameOrEmail.split('@');
     const isEmail = split.length > 1;
 
+    // FIXME: improve this logic
     if (isEmail) {
-        // const username = split[1];
-        const domain = split[2];
-        return domain == serverInfo.hostname;
+        const domain = split[0] == '' ? split[2] : split[1];
+        return domain == serverInfo.hostname || domain.includes('localhost');
     }
     // TODO: add support for usernames only!
 

@@ -18,6 +18,7 @@ import { sessionConfig } from './middlewares/auth.middleware.js';
 import { isProduction } from './utils/misc.js';
 import { homeRouter } from './routes/home.route.js';
 import { getStaticAssetsPath } from './utils/path.js';
+import { wellKnownRouter } from './routes/well-known.route.js';
 
 ((async () => {
     // Initialize database
@@ -56,6 +57,7 @@ import { getStaticAssetsPath } from './utils/path.js';
     app.use('/static', express.static(getStaticAssetsPath()));
 
     // Routes
+    app.use('/.well-known', wellKnownRouter);
     app.use('', viewsRouter);
     app.use('/auth', authRouter);
     app.use('/users', userRouter);

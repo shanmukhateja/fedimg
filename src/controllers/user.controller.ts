@@ -88,7 +88,7 @@ export class UserController {
         // FIXME: implement
         const showFollowButton = true;
 
-        const isUserSameAsProfileUser = (res.req.user as User)?._id === user._id;
+        const isUserSameAsProfileUser = user._id && (res.req.user as User)?._id === user._id;
 
         let renderPayload = {
             isLoggedIn: res.req.isAuthenticated(),
@@ -101,7 +101,7 @@ export class UserController {
             renderPayload.loggedInUser = {
                 userName: user?.displayName,
                 userEmail: user?.email,
-                userAvatar: user?.avatar,
+                userAvatar: user?.avatar?.url,
                 // Note: Pixelfed doesn't support this
                 userTags: [],
                 // Note: Pixelfed doesn't support this
@@ -128,16 +128,17 @@ export class UserController {
                 postsCount: 0,
                 showFollowButton,
             }
-            renderPayload.profileUser = {   
+            renderPayload.profileUser = {
                 userName: user.displayName,
                 userEmail: user.email,
-                userAvatar: user.avatar,
+                // FIXME lookupUser types mismatch with User.entity.ts
+                userAvatar: user.avatar as any,
                 // Note: Pixelfed doesn't support it
                 userTags: user.tags,
                 // Note: Pixelfed doesn't support it
                 userAttachments: user.attachments
             }
-            renderPayload.posts= [];
+            renderPayload.posts = [];
         }
         res.render(pageURL, renderPayload)
     }
