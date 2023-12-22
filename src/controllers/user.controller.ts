@@ -138,7 +138,11 @@ export class UserController {
                 // Note: Pixelfed doesn't support it
                 userAttachments: user.attachments
             }
-            renderPayload.posts = [];
+
+            // when any local user's profile is requested 
+            // FIXME: improve this
+            renderPayload.posts = posts;
+            renderPayload.metadata.postsCount = postsCount;
         }
         res.render(pageURL, renderPayload)
     }
