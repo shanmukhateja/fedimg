@@ -49,6 +49,17 @@ export class UserController {
 
         return user;
     }
+    static async getUserByKeySafe(key: string, value: any) {
+        const user = await this.getUserByKey(key, value);
+
+        if (!user) return null;
+
+        delete user._id;
+        delete user.password;
+        delete user.privateKey;
+
+        return user;
+    }
 
 
     static async generateHashedPassword(password: string) {

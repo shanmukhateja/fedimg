@@ -11,16 +11,21 @@ userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     UserController.renderPageWithUserInfo('home/profile.njk', req.user as User, res);
 })
 
-userRouter.get('/:id', async (req, res) => {
+userRouter.get('/:usernameOrEmail', async (req, res) => {
     try {
-        const userId = req.params.id;
-        const isUserLocal = verifyUserIsLocal(req.app.get('serverInfo'), userId);
+        const usernameOrEmail = req.params.usernameOrEmail;
+        const isUserLocal = verifyUserIsLocal(req.app.get('serverInfo'), usernameOrEmail);
         let user = null;
         if (isUserLocal) {
-            user = await UserController.getUserByIdSafe(userId);
+            user = await UserController.getUserByIdSafe(usernameOrEmail);
+            if (!user) {
+                // try email
+                const strippedUserId = usernameOrEmail.startsWith('@') ? usernameOrEmail.slice(1) : usernameOrEmail;
+                user = await UserController.getUserByKeySafe('email', strippedUserId);
+            }
         } else {
             // Sends a 'mock' User.entity.ts object
-            user = await UserLookupController.lookupUser(userId);
+            user = await UserLookupController.lookupUser(usernameOrEmail);
         }
         if (!user) {
             res.statusCode = 404;
