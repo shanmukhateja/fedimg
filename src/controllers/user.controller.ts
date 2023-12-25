@@ -98,7 +98,8 @@ export class UserController {
         if (renderPayload.isLoggedIn) {
             const user = res.req.user as User;
             renderPayload.loggedInUser = {
-                userName: user?.displayName,
+                name: user?.displayName,
+                username: user?.preferredUsername,
                 userEmail: user?.email,
                 userAvatar: user?.avatar?.url,
                 // Note: Pixelfed doesn't support this
@@ -128,7 +129,8 @@ export class UserController {
                 showFollowButton,
             }
             renderPayload.profileUser = {
-                userName: user.displayName,
+                name: user.displayName,
+                username: user.preferredUsername,
                 userEmail: user.email,
                 // FIXME lookupUser types mismatch with User.entity.ts
                 userAvatar: user.avatar as any,

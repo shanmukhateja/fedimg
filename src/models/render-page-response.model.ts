@@ -17,7 +17,8 @@ export interface RenderPagePayload {
 }
 
 export interface RenderPagePayloadProfileUser {
-    userName: string,
+    name: string,
+    username: string,
     userEmail: string,
     userAvatar: string,
     userTags: Tag[],

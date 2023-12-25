@@ -12,11 +12,13 @@
         height: 20px;
         background-color: red;
     }
+
     .attachment-item {
         display: flex;
         align-items: center;
         gap: 10px;
     }
+
     .attachment-item .invisible {
         display: none !important;
     }
@@ -40,7 +42,7 @@
                                 {% endif %}
                                 {% if showProfileEditOptions %}
                                 <button id="btn-update-photo" class="btn btn-link" style="font-size: 12px;"
-                                data-bs-toggle="modal" data-bs-target="#updatePhotoModal">Update Photo</button>
+                                    data-bs-toggle="modal" data-bs-target="#updatePhotoModal">Update Photo</button>
                                 {% endif %}
                             </div>
                         </div>
@@ -50,7 +52,7 @@
                                     <div class="row flex-column gap-3">
                                         {# FIXME: parse emoji #}
                                         <h2 class="m-0">
-                                            {{profileUser.userName}}
+                                            {{profileUser.name}}
                                             {% if showProfileEditOptions %}
                                             <sup>
                                                 <button id="btn-edit-profile-name" class="btn btn-link"
@@ -64,24 +66,24 @@
                                         <div class="d-flex align-items-center gap-2">
                                             {% for attachment in profileUser.userAttachments %}
                                             {# Note: need to support more types #}
-                                                {% if attachment.type == 'PropertyValue' %}
-                                                <div class="attachment-item">
-                                                    <i class="ti ti-link text-primary"></i>
-                                                    {# FIXME: improve safety #}
-                                                    {{attachment.value | safe}}
-                                                </div>
-                                                {% endif %}
+                                            {% if attachment.type == 'PropertyValue' %}
+                                            <div class="attachment-item">
+                                                <i class="ti ti-link text-primary"></i>
+                                                {# FIXME: improve safety #}
+                                                {{attachment.value | safe}}
+                                            </div>
+                                            {% endif %}
                                             {% endfor %}
                                         </div>
                                         {% endif %}
                                         {% if profileUser.userTags %}
-                                            <div class="d-flex align-items-center gap-2">
-                                                {% for tag in profileUser.userTags %}
-                                                <a href="{{tag.href}}" target="_blank">
-                                                    <span class="badge rounded-pill text-bg-secondary">{{tag.name}}</span>
-                                                </a>
-                                                {% endfor %}
-                                            </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% for tag in profileUser.userTags %}
+                                            <a href="{{tag.href}}" target="_blank">
+                                                <span class="badge rounded-pill text-bg-secondary">{{tag.name}}</span>
+                                            </a>
+                                            {% endfor %}
+                                        </div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -154,9 +156,11 @@
                     <div class="mb-3">
                         <label for="displayName" class="form-label">Display Name</label>
                         <input type="text" class="form-control" placeholder="Ex: John Mastodon" id="displayName"
-                            name="displayName" required autocomplete="name" value="{{userName}}">
+                            name="displayName" required autocomplete="name" value="{{profileUser.name}}">
                         <div class="form-text">This name will be visible to viewers of your profile.</div>
                     </div>
+
+                    <input type="hidden" name="email" value="{{profileUser.userEmail}}">
 
                     <input class="btn btn-primary float-end" type="submit" value="Submit">
                 </form>

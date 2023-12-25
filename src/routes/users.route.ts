@@ -54,19 +54,30 @@ userRouter.get('/:usernameOrEmail', async (req, res) => {
 });
 
 userRouter.post('/profile/update-name', ensureAuthenticated, async (req, res) => {
-    const { displayName } = req.body;
+    const { displayName, email } = req.body;
     if (!displayName) {
         res.sendStatus(400)
         return;
     }
 
-    const isUpdated = await UserController.updateDisplayName(req.user['username'], displayName);
+    const loggedInUser = req.user as User;
+
+    if (email != loggedInUser.email) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const isUpdated = await UserController.updateDisplayName(loggedInUser.preferredUsername, displayName);
 
     if (!isUpdated) {
         // FIXME: propogate errors
         res.sendStatus(422);
         return;
     }
+
+    // update user data in req.user
+    // This step updates user's display name in UI
+    req.user['displayName'] = displayName;
 
     res.redirect('/users/profile');
 })
