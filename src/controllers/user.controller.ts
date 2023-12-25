@@ -64,7 +64,6 @@ export class UserController {
 
     static async generateHashedPassword(password: string) {
         const saltRounds = 10;
-
         return await hash(password, saltRounds)
     }
 

@@ -10,7 +10,7 @@ export class UserApiController {
     static async registerUserAPI(serverInfo: ServerInfo, params: RegisterUserApiPayload) {
         try {
             const userRepo = AppDataSource.getRepository(User);
-            const {userPublicKey: publicKey, privateKey} = await generateUserKey(serverInfo, params.username);
+            const { userPublicKey: publicKey, privateKey } = await generateUserKey(serverInfo, params.username);
 
             // TODO validation
 

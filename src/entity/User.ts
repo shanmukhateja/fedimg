@@ -44,10 +44,10 @@ export class User extends BaseEntity {
     @Column({ type: 'longtext' })
     password: string;
 
-    @Column({ type: 'longtext' })
+    @Column({ type: 'longtext', default: '' })
     tags: Tag[];
 
-    @Column({ type: 'longtext' })
+    @Column({ type: 'longtext', default: '' })
     attachments: Attachment[];
 
     validPassword(password: string) {

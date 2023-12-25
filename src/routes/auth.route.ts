@@ -5,15 +5,15 @@ import url from 'url';
 import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
 import { User } from "../entity/User.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
+import axios from "axios";
+import { RegisterUserApiPayload } from "../models/api/register-user-api.model.js";
+import { ServerInfo } from "../models/server-info.model.js";
+import { getBaseURL } from "../utils/url.js";
 
 export const authRouter = Router();
 
 authRouter.get('/login', (req, res) => {
     res.render('login.njk');
-})
-
-authRouter.get('/register', (req, res) => {
-    res.render('register.njk');
 })
 
 authRouter.post('/login', passport.authenticate('session'), async (req, res) => {
@@ -57,4 +57,28 @@ authRouter.get('/logout', ensureAuthenticated, (req, res) => {
 
         res.redirect('/auth/login');
     })
+})
+
+
+authRouter.get('/register', (req, res) => {
+    res.render('register.njk');
+})
+
+authRouter.post('/register', async (req, res) => {
+    const { username, password, locale, email } = req.body as RegisterUserApiPayload;
+    const serverInfo: ServerInfo = req.app.get('serverInfo');
+    try {
+        await axios.post(`${getBaseURL(serverInfo)}api/v1/users`, {
+            username,
+            email,
+            password,
+            locale,
+            "agreement": "TRUE"
+        });
+
+        res.redirect('/auth/login?description=Please login to your account.')
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500)
+    }
 })

@@ -1,7 +1,7 @@
 {% extends "./base.njk" %}
 
 {% block pageTitle %}
-    Create an Account | fedIMG
+Create an Account | fedIMG
 {% endblock pageTitle %}
 
 {% block body %}
@@ -11,25 +11,28 @@
         place-content: center;
     }
 </style>
-    <div class="container">
+<div class="container">
 
     <div class="px-4 py-5 my-5 text-center">
         <main class="form-register w-100 m-auto">
-            <form class="d-flex flex-column gap-2 w-50" enctype="multipart/form-data" action="/auth/register" method="post">
+            <form class="d-flex flex-column gap-2 w-50" action="/auth/register" method="post">
                 <h1 class="fw-bold my-2">fedIMG</h1>
                 <div class="h3 mb-3 fw-normal">
                     Create an account
                 </div>
                 <div class="form-floating">
-                    <input type="email" autofocus required class="form-control" id="formControlEmail" placeholder="name@example.com">
+                    <input type="email" autofocus required class="form-control" id="formControlEmail" name="email"
+                        placeholder="name@example.com">
                     <label for="formControlEmail">Email address</label>
                 </div>
                 <div class="form-floating">
-                    <input type="text" required class="form-control" id="formControlUsername" placeholder="name0123">
+                    <input type="text" required class="form-control" id="formControlUsername" name="username"
+                        placeholder="name0123">
                     <label for="formControlUsername">Username</label>
                 </div>
                 <div class="form-floating">
-                    <input type="password" required class="form-control" id="floatingPassword" placeholder="Password">
+                    <input type="password" required class="form-control" id="floatingPassword" name="password"
+                        placeholder="Password">
                     <label for="floatingPassword">Password</label>
                 </div>
 
@@ -49,7 +52,8 @@
                     Please sign in
                 </h1>
                 <div class="form-floating">
-                    <input type="email" required class="form-control" id="formControlEmail" placeholder="name@example.com">
+                    <input type="email" required class="form-control" id="formControlEmail"
+                        placeholder="name@example.com">
                     <label for="formControlEmail">Email address</label>
                 </div>
                 <div class="form-floating">
