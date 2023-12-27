@@ -17,7 +17,7 @@ import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
 import { isProduction } from './utils/misc.js';
 import { homeRouter } from './routes/home.route.js';
-import { getStaticAssetsPath } from './utils/path.js';
+import { getAssetsPath, getContentUploadPath } from './utils/path.js';
 import { wellKnownRouter } from './routes/well-known.route.js';
 
 ((async () => {
@@ -54,7 +54,8 @@ import { wellKnownRouter } from './routes/well-known.route.js';
     })
 
     // multer
-    app.use('/static', express.static(getStaticAssetsPath()));
+    app.use('/uploads', express.static(getContentUploadPath()));
+    app.use('/public', express.static(getAssetsPath()));
 
     // Routes
     app.use('/.well-known', wellKnownRouter);

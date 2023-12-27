@@ -10,7 +10,7 @@ export class MediaAPIController {
 
         return await mediaRepo.create({
             _id: null,
-            path: `${params.serverInfo.schema}://${params.serverInfo.hostname}:${params.serverInfo.port}/static/${params.file.filename}`,
+            path: `${params.serverInfo.schema}://${params.serverInfo.hostname}:${params.serverInfo.port}/uploads/${params.file.filename}`,
             alt: params.alt,
             user,
             published: new Date(),

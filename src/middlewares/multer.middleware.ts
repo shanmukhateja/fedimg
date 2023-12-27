@@ -2,7 +2,7 @@ import multer from "multer";
 import * as uuid from 'uuid';
 import { UploadMediaAPIPayloadFileModel } from "../models/api/media-api.model";
 import path from 'path';
-import { getStaticAssetsPath } from "../utils/path.js";
+import { getContentUploadPath } from "../utils/path.js";
 
 const multerConfig = multer({ 
     fileFilter: (_req, file: UploadMediaAPIPayloadFileModel, cb) => {
@@ -17,7 +17,7 @@ const multerConfig = multer({
     },
     storage: multer.diskStorage({
         destination: (req, file, callback) => {
-            callback(null,getStaticAssetsPath())
+            callback(null,getContentUploadPath())
         },
         filename: (req, file, callback) => {
             const fileExt = path.extname(file.originalname);

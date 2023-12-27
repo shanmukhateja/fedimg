@@ -6,5 +6,5 @@ dist/
 tmp/
 temp/
 .env
-public/**/*
-!public/.gitkeep
+uploads/**/*
+!uploads/.gitkeep

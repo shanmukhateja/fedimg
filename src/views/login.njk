@@ -6,14 +6,6 @@ Login | fedIMG
 
 
 {% block body %}
-{# FIXME: move this to separate file #}
-<style>
-    .form-signin {
-        display: flex;
-        place-content: center;
-    }
-</style>
-
 <div class="container">
 
     <div class="px-4 py-5 my-5 text-center">
@@ -62,7 +54,7 @@ Login | fedIMG
         const alertEl = document.querySelector('#errorAlert');
         if (!alertEl) {
             console.warn('Unable to locate alert to show errors');
-            console.error('Got error: ',error);
+            console.error('Got error: ', error);
             return;
         }
 
