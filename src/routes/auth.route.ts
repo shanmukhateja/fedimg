@@ -5,10 +5,8 @@ import url from 'url';
 import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
 import { User } from "../entity/User.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
-import axios from "axios";
 import { RegisterUserApiPayload } from "../models/api/register-user-api.model.js";
 import { ServerInfo } from "../models/server-info.model.js";
-import { getBaseURL } from "../utils/url.js";
 
 export const authRouter = Router();
 
@@ -67,18 +65,26 @@ authRouter.get('/register', (req, res) => {
 authRouter.post('/register', async (req, res) => {
     const { username, password, locale, email } = req.body as RegisterUserApiPayload;
     const serverInfo: ServerInfo = req.app.get('serverInfo');
-    try {
-        await axios.post(`${getBaseURL(serverInfo)}api/v1/users`, {
+    const userOrError = await AuthController.registerUserAPI(serverInfo, {
             username,
             email,
             password,
             locale,
-            "agreement": "TRUE"
+            agreement: "TRUE"
         });
 
-        res.redirect('/auth/login?description=Please login to your account.')
-    } catch (error) {
-        console.error(error);
-        res.sendStatus(500)
-    }
+        if (userOrError instanceof User) {
+            // ok
+
+            // FIXME: inspect and return JSON+LD response if needed
+
+            res.redirect('/auth/login?description=Please login to your account.')
+        } else {
+            // send error
+            const errorCode = userOrError == 'ER_DUP_ENTRY' ? APIErrorCodes.ERR_TAKEN : APIErrorCodes.ERR_INVALID;
+            
+            res.status(422);
+            res.send(generateErrorResponse(errorCode));
+        }
+
 })

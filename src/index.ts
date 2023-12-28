@@ -10,8 +10,7 @@ import morgan from 'morgan';
 
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
-import { usersApiRouter } from './routes/api/users-api.routes.js';
-import { mediaApiRouter } from './routes/media.route.js';
+import { mediaRouter } from './routes/media.route.js';
 import { viewsRouter } from './routes/views.route.js';
 import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
@@ -63,11 +62,7 @@ import { wellKnownRouter } from './routes/well-known.route.js';
     app.use('/auth', authRouter);
     app.use('/users', userRouter);
     app.use('/home', homeRouter);
-    // API routes
-    // FIXME: Need to separate '/api/v1' here
-    app.use('/api/v1/users', usersApiRouter);
-    // FIXME: add static folder for multer
-    app.use('/api/v1/media', mediaApiRouter);
+    app.use('/media', mediaRouter);
 
 
     // server info

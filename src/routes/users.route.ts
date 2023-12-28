@@ -4,11 +4,12 @@ import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 import { User } from "../entity/User.js";
 import { verifyUserIsLocal } from "../utils/user.js";
 import { UserLookupController } from "../controllers/user-lookup.controller.js";
+import { renderPageWithUserInfo } from "../utils/render.js";
 
 const userRouter = Router();
 
 userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
-    UserController.renderPageWithUserInfo('home/profile.njk', req.user as User, res);
+    renderPageWithUserInfo('home/profile.njk', req.user as User, res);
 })
 
 userRouter.get('/:usernameOrEmail', async (req, res) => {
@@ -40,7 +41,7 @@ userRouter.get('/:usernameOrEmail', async (req, res) => {
         if (isHTMLRequired) {
             let determineUser: User = null;
             determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
-            UserController.renderPageWithUserInfo('home/profile.njk', determineUser, res);
+            renderPageWithUserInfo('home/profile.njk', determineUser, res);
             return;
         }
 

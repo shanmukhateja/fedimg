@@ -1,16 +1,15 @@
 import { Router } from "express";
 import { UploadMedaiAPIResponseModel, UploadMediaAPIPayloadModel } from "../models/api/media-api.model";
 import { multerConfig } from "../middlewares/multer.middleware.js";
-import { MediaAPIController } from "../controllers/api/media-api.controller.js";
 import { MediaController } from "../controllers/media.controller.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 import passport from "passport";
 import { User } from "../entity/User.js";
 
-export const mediaApiRouter = Router();
+export const mediaRouter = Router();
 
 
-mediaApiRouter.post('', passport.authenticate('session'), ensureAuthenticated, multerConfig.single('media'), async (req, res) => {
+mediaRouter.post('', passport.authenticate('session'), ensureAuthenticated, multerConfig.single('media'), async (req, res) => {
     try {
         const params: UploadMediaAPIPayloadModel = {
             file: req.file,
@@ -19,7 +18,7 @@ mediaApiRouter.post('', passport.authenticate('session'), ensureAuthenticated, m
         }
 
         const user = req.user as User;
-        const media = await MediaAPIController.createMediaEntry(params, user);
+        const media = await MediaController.createMediaEntry(params, user);
 
         res.send({
                 id: media._id,
@@ -35,7 +34,7 @@ mediaApiRouter.post('', passport.authenticate('session'), ensureAuthenticated, m
     }
 })
 
-mediaApiRouter.get('/:id', async (req, res) => {
+mediaRouter.get('/:id', async (req, res) => {
     const id = parseInt(req.params.id);
 
     const media = await MediaController.getMediaItemById(id);

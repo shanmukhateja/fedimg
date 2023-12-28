@@ -1,6 +1,7 @@
 import { generateKeyPair } from "crypto";
 import { ServerInfo } from "../models/server-info.model.js";
 import { UserKeysInfo } from "../models/api/user-keys.model.js";
+import { getBaseURL } from "./url.js";
 
 export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): boolean {
     const split = userNameOrEmail.split('@');
@@ -17,7 +18,7 @@ export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: strin
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {
-    return `${serverInfo.schema}://${serverInfo.hostname}:${serverInfo.port}/users/${username}`
+    return `${getBaseURL(serverInfo)}/users/${username}`
 }
 
 
