@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import session from 'express-session';
-import passport from 'passport';
+import * as session from 'express-session';
+import * as passport from 'passport';
 import { User } from '../entity/User.js';
 import { isProduction } from "../utils/misc.js";
 

@@ -1,4 +1,4 @@
-import multer from "multer";
+import * as multer from "multer";
 import * as uuid from 'uuid';
 import { UploadMediaAPIPayloadFileModel } from "../models/api/media-api.model";
 import path from 'path';

@@ -3,7 +3,7 @@ import { UploadMedaiAPIResponseModel, UploadMediaAPIPayloadModel } from "../mode
 import { multerConfig } from "../middlewares/multer.middleware.js";
 import { MediaController } from "../controllers/media.controller.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
-import passport from "passport";
+import * as passport from "passport";
 import { User } from "../entity/User.js";
 
 export const mediaRouter = Router();

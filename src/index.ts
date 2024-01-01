@@ -1,12 +1,10 @@
-import express from 'express';
-import cors from 'cors';
+import * as express from 'express';
+
+import * as cors from 'cors';
 import 'dotenv/config';
-
-import passport from 'passport';
-
-import nunjucks from 'nunjucks';
-
-import morgan from 'morgan';
+import * as passport from 'passport';
+import * as nunjucks from 'nunjucks';
+import * as morgan from 'morgan';
 
 import { AppDataSource } from "./data-source.js";
 import { userRouter } from './routes/users.route.js';
@@ -16,8 +14,9 @@ import { authRouter } from './routes/auth.route.js';
 import { sessionConfig } from './middlewares/auth.middleware.js';
 import { isProduction } from './utils/misc.js';
 import { homeRouter } from './routes/home.route.js';
-import { getAssetsPath, getContentUploadPath } from './utils/path.js';
 import { wellKnownRouter } from './routes/well-known.route.js';
+
+import { getAssetsPath, getContentUploadPath } from './utils/path.js';
 
 ((async () => {
     // Initialize database

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller.js";
-import passport from "passport";
-import url from 'url';
+import * as passport from "passport";
+import * as url from 'url';
 import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
 import { User } from "../entity/User.js";
 import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
