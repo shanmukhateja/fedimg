@@ -2,6 +2,7 @@ import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGe
 import { UserController } from "../controllers/user.controller.js";
 import { UserPublicKey } from "../models/api/user-keys.model.js";
 import { Attachment, Icon, Tag } from "../models/user-info-response.model.js";
+import { isTesting } from "../utils/misc.js";
 
 @Entity()
 export class User extends BaseEntity {
@@ -13,7 +14,7 @@ export class User extends BaseEntity {
     id: string;
 
     // FIXME: should be `string` in case of lookupUser
-    @Column({ nullable: true, type: 'longtext' })
+    @Column({ nullable: true, type: isTesting() ? 'text' : 'longtext' })
     avatar: Icon;
 
     @Column({ type: 'varchar' })
@@ -35,23 +36,23 @@ export class User extends BaseEntity {
     @Column({ type: 'json' })
     publicKey: UserPublicKey
 
-    @Column({ type: 'longtext' })
+    @Column({ type: isTesting() ? 'text' : 'longtext' })
     privateKey: string;
 
     @Column({ unique: true })
     email: string;
 
-    @Column({ type: 'longtext' })
+    @Column({ type: isTesting() ? 'text' : 'longtext' })
     password: string;
 
-    @Column({ type: 'longtext', default: '' })
+    @Column({ type: isTesting() ? 'text' : 'longtext', default: '' })
     tags: Tag[];
 
-    @Column({ type: 'longtext', default: '' })
+    @Column({ type: isTesting() ? 'text' : 'longtext', default: '' })
     attachments: Attachment[];
 
     validPassword(password: string) {
-        return UserController.validatePassword(this.preferredUsername, password);
+        return UserController.validatePasswordByUsername(this.preferredUsername, password);
     }
 
 }

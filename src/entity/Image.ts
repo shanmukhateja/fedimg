@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { User } from "./User.js";
+import { isTesting } from "../utils/misc.js";
 
 @Entity()
 export class Image extends BaseEntity {
@@ -10,7 +11,7 @@ export class Image extends BaseEntity {
     @Column({type: 'varchar'})
     type = 'Image'
 
-    @Column({type: 'longtext'})
+    @Column({type: isTesting() ? 'text' : 'longtext'})
     path: string;
 
     @Column({nullable: true})

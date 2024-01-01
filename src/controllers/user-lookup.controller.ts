@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { MastodonUserLookup } from '../models/user-lookups/lookup-mastodon.model';
 import { UserInfoResponseModel } from '../models/user-info-response.model';
+import { fetchRemoteDataFromURL } from '../utils/url.js';
 
 export class UserLookupController {
 
@@ -23,8 +23,7 @@ export class UserLookupController {
             const url = `https://${domain}/.well-known/webfinger?resource=acct:${strippedEmail}`;
 
             try {
-                const result = await axios.get(url);
-                const response = result.data as MastodonUserLookup;
+                const response: MastodonUserLookup = await fetchRemoteDataFromURL(url);
 
                 // Fetch remote user's info
 
@@ -37,7 +36,7 @@ export class UserLookupController {
                 // FIXME: find alternative
                 if (!link) return null;
 
-                const remoteUser = await this.getRemoteUserInfo(link.href);
+                const remoteUser: UserInfoResponseModel = await fetchRemoteDataFromURL(link.href);
 
                 // mock 'User' object
                 let user = {
@@ -61,14 +60,4 @@ export class UserLookupController {
 
     }
 
-    static async getRemoteUserInfo(url: string): Promise<UserInfoResponseModel> {
-
-        const result = await axios.get(url, {
-            headers: {
-                Accept: 'application/ld+json'
-            }
-        });
-
-        return result.data;
-    }
 }

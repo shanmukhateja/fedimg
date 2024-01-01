@@ -63,7 +63,7 @@ export class UserController {
     }
 
 
-    static async validatePassword(username: string, password: string) {
+    static async validatePasswordByUsername(username: string, password: string) {
         if (!username || !password) return false;
         const user = await this.getUserById(username);
         return await compare(password, user.password);
