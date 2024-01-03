@@ -2,6 +2,7 @@ import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
 import { RegisterUserApiPayload } from "../models/api/register-user-api.model.js";
 import { ServerInfo } from "../models/server-info.model.js";
+import { UserService } from "../services/user.service.js";
 import { APIErrorCodes } from "../utils/errors.js";
 import { generateUserKey } from "../utils/user.js";
 import { UserController } from "./user.controller.js";
@@ -43,7 +44,7 @@ export class AuthController {
 
     static async processLogin(email: string, password: string): Promise<User|APIErrorCodes> {
 
-        const user = await UserController.getUserByKey('email', email);
+        const user = await UserService.getUserByKey('email', email);
 
         if (!user) return APIErrorCodes.ERR_ACCOUNT;
 

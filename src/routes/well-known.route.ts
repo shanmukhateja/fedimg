@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { WellknownResponseModel } from "../models/well-known.model.js";
-import { UserController } from "../controllers/user.controller.js";
+import { UserService } from "../services/user.service.js";
 import { generateWellKnownResponse, processWebFingerResourceUri } from "../utils/webfinger.js";
 import { User } from "../entity/User.js";
 
@@ -17,7 +17,7 @@ wellKnownRouter.get('/webfinger', async (req, res) => {
     }
 
     // assuming email
-    const lookupUserDetails: User = await UserController.getUserByKeySafe('email', lookupUserEmail);
+    const lookupUserDetails: User = await UserService.getUserByKeySafe('email', lookupUserEmail);
 
     if (!lookupUserDetails) {
         res.sendStatus(404);

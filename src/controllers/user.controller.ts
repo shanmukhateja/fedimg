@@ -1,59 +1,54 @@
 import { hash, compare } from "bcrypt";
 import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
+import { Request, Response } from "express";
+import { renderPageWithUserInfo } from "../utils/render.js";
+import { verifyUserIsLocal } from "../utils/user.js";
+import { UserLookupController } from "./user-lookup.controller.js";
+import { UserService } from "../services/user.service.js";
 
 export class UserController {
 
-    static async getUserById(username: string): Promise<User> {
-        // strip '@' character if exists
-        if (username.startsWith('@')) {
-            username = username.slice(0);
+    static async handleUserByNameOrEmail(req: Request, res: Response) {
+        try {
+            const usernameOrEmail = req.params.usernameOrEmail;
+            const isUserLocal = verifyUserIsLocal(req.app.get('serverInfo'), usernameOrEmail);
+            let user = null;
+            if (isUserLocal) {
+                user = await UserService.getUserByIdSafe(usernameOrEmail);
+                if (!user) {
+                    // try email
+                    const strippedUserId = usernameOrEmail.startsWith('@') ? usernameOrEmail.slice(1) : usernameOrEmail;
+                    user = await UserService.getUserByKeySafe('email', strippedUserId);
+                }
+            } else {
+                // Sends a 'mock' User.entity.ts object
+                user = await UserLookupController.lookupUser(usernameOrEmail);
+            }
+            if (!user) {
+                res.statusCode = 404;
+                // Match error with Mastodon API
+                res.send({ error: 'Not found' });
+                return;
+            }
+    
+            const isJsonLDRequired = req.accepts('application/ld+json') || req.accepts('application/activity+json');
+            const isHTMLRequired = req.accepts('html');
+    
+            if (isHTMLRequired) {
+                let determineUser: User = null;
+                determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
+                renderPageWithUserInfo('home/profile.njk', determineUser, res);
+                return;
+            }
+    
+            // TODO: Make it JSON+LD like.
+    
+            res.send(user);
+        } catch (error) {
+            console.error(error);
+            res.sendStatus(500)
         }
-        const userRepo = AppDataSource.getRepository(User);
-        const user = await userRepo.findOneBy({
-            preferredUsername: username
-        });
-
-        if (!user) return null;
-
-        return user;
-    }
-
-    // FIXME: find a better way
-    static async getUserByIdSafe(username: string): Promise<User> {
-
-        const user = await this.getUserById(username);
-
-        if (!user) return null;
-
-        delete user._id;
-        delete user.password;
-        delete user.privateKey;
-
-        return user;
-    }
-
-    static async getUserByKey(key: string, value: any) {
-        const userRepo = AppDataSource.getRepository(User);
-
-        const user = await userRepo.findOneBy({
-            [key]: value
-        })
-
-        if (!user) return null;
-
-        return user;
-    }
-    static async getUserByKeySafe(key: string, value: any) {
-        const user = await this.getUserByKey(key, value);
-
-        if (!user) return null;
-
-        delete user._id;
-        delete user.password;
-        delete user.privateKey;
-
-        return user;
     }
 
 
@@ -65,7 +60,7 @@ export class UserController {
 
     static async validatePasswordByUsername(username: string, password: string) {
         if (!username || !password) return false;
-        const user = await this.getUserById(username);
+        const user = await UserService.getUserById(username);
         return await compare(password, user.password);
     }
 
