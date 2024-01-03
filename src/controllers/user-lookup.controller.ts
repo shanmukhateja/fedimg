@@ -1,32 +1,13 @@
 import { MastodonUserLookup } from '../models/user-lookups/lookup-mastodon.model';
 import { UserInfoResponseModel } from '../models/user-info-response.model';
 import { fetchRemoteDataFromURL } from '../utils/url.js';
+import { UserLookupService } from '../services/user-lookup.service';
 
 export class UserLookupController {
 
-    static parseUserInputString(userNameOrEmail: string) {
-        const split = userNameOrEmail.split('@');
-        // FIXME: find a better way
-        const usernameIndex = userNameOrEmail.startsWith('@') ? 1 : 0;
-        const domainIndex = userNameOrEmail.startsWith('@') ? 2 : 1;
-        const username = split[usernameIndex];
-        // FIXME: domain must NOT include port number
-        const domain = split[domainIndex];
-
-        // Ask domain about the user
-        let strippedEmail = userNameOrEmail;
-        if (userNameOrEmail.startsWith('@')) {
-            strippedEmail = userNameOrEmail.slice(1);
-        }
-
-        return {
-            split, username, domain, strippedEmail
-        }
-    }
-
     static async lookupUser(userNameOrEmail: string) {
         try {
-            const { split, domain, username, strippedEmail } = this.parseUserInputString(userNameOrEmail);
+            const { split, domain, username, strippedEmail } = UserLookupService.parseUserInputString(userNameOrEmail);
             const isEmail = split.length > 1;
 
             if (!isEmail) return null;

@@ -2,6 +2,7 @@ import { UserLookupController } from "./user-lookup.controller.js";
 import * as urlUtils from '../utils/url.js';
 import { MastodonUserLookup } from "../models/user-lookups/lookup-mastodon.model.js";
 import { UserInfoResponseModel } from "../models/user-info-response.model.js";
+import { UserLookupService } from "../services/user-lookup.service.js";
 
 
 describe('user lookup tests', async () => {
@@ -95,13 +96,13 @@ describe('user lookup tests', async () => {
 
     it('parseUserInputString with @ prefix', async () => {
         const mockResponse = { split: ['', 'user', 'example.com'], domain: 'example.com', username: 'user', strippedEmail: 'user@example.com' };
-        const output = UserLookupController.parseUserInputString(mockUserEmailWithPrefix);
+        const output = UserLookupService.parseUserInputString(mockUserEmailWithPrefix);
         expect(output).toEqual(mockResponse);
     })
 
     it('parseUserInputString without @ prefix', async () => {
         const mockResponse = { split: ['user', 'example.com'], domain: 'example.com', username: 'user', strippedEmail: 'user@example.com' };
-        const output = UserLookupController.parseUserInputString(mockUserEmailWithoutPrefix);
+        const output = UserLookupService.parseUserInputString(mockUserEmailWithoutPrefix);
         expect(output).toEqual(mockResponse);
     })
 
