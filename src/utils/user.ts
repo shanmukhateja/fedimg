@@ -18,11 +18,9 @@ export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: strin
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {
-    return `${getBaseURL(serverInfo)}/users/${username}`
+    return `${getBaseURL(serverInfo)}users/${username}`
 }
 
-
-// FIXME: implement
 export async function generateUserKey(serverInfo: ServerInfo, username: string): Promise<UserKeysInfo> {
     return new Promise((resolve, reject) => {
 
