@@ -44,6 +44,10 @@ describe('auth.controller test', () => {
         expect(db).toBeTruthy();
     })
 
+    afterAll(async () => {
+        await AppDataSource.destroy();
+    })
+
     beforeEach(async () => {
         const userRepo = AppDataSource.getRepository(User);
         const index = await userRepo.count();

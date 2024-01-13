@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
-import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/User.js";
 import { RegisterUserApiPayload } from "../models/api/register-user-api.model.js";
 import { ServerInfo } from "../models/server-info.model.js";
 import { APIErrorCodes, generateErrorResponse } from "../utils/errors.js";
-import { generateUserKey } from "../utils/user.js";
-import { UserController } from "./user.controller.js";
 import * as url from 'url';
 import { AuthService } from "../services/auth.service.js";
 
