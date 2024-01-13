@@ -20,15 +20,12 @@
       "jsonld": "^8.3.1",
       "morgan": "^1.10.0",
       "multer": "^1.4.5-lts.1",
-      "mysql": "^2.14.1",
       "mysql2": "^3.6.5",
       "nunjucks": "^3.2.4",
       "passport": "^0.6.0",
       "passport-local": "^1.0.0",
       "reflect-metadata": "^0.1.13",
-      "tsc-watch": "^6.0.4",
       "typeorm": "0.3.17",
-      "typescript": "^5.3.2",
       "uuid": "^9.0.1"
    },
    "devDependencies": {
@@ -48,6 +45,7 @@
       "chokidar": "^3.5.3",
       "jasmine": "^5.1.0",
       "ts-node": "10.7.0",
-      "typescript": "4.5.2"
+      "tsc-watch": "^6.0.4",
+      "typescript": "^5.3.2"
    }
 }
