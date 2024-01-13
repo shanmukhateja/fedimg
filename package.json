@@ -4,7 +4,8 @@
    "description": "The backend for FedImg project.",
    "scripts": {
       "start": "tsc-watch -p tsconfig.dev.json --onSuccess \"node ./dist/index.js\"",
-      "test": "NODE_ENV=testing tsc-watch -p tsconfig.test.json --onSuccess \"jasmine ./dist/**/*.spec.js\""
+      "test": "NODE_ENV=testing tsc-watch -p tsconfig.test.json --onSuccess \"jasmine ./dist/**/*.spec.js\"",
+      "test:ci": "NODE_ENV=testing tsc -p tsconfig.test.json && jasmine ./dist/**/*.spec.js"
    },
    "keywords": [],
    "author": "",
