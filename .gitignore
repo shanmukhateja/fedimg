@@ -8,4 +8,4 @@ temp/
 .env
 uploads/**/*
 !uploads/.gitkeep
-test
+test.sqlite3
