@@ -54,7 +54,7 @@ describe('auth.controller test', () => {
 
         const username = `user${index + 1}`;
 
-        mockRegisterPayload.email = username;
+        mockRegisterPayload.email = `${username}@${mockServerInfo.hostname}`;
         mockRegisterPayload.username = username;
 
         // default values for mock request

@@ -31,7 +31,7 @@ describe('media controller tests', () => {
 
         const username = `user${index + 1}`;
 
-        mockRegisterPayload.email = username;
+        mockRegisterPayload.email = `${username}@${mockServerInfo.hostname}`;
         mockRegisterPayload.username = username;
 
 
@@ -89,11 +89,10 @@ describe('media controller tests', () => {
         expect(fetchedImage._id).toEqual(image._id);
     })
 
-    it('should fetch media by user email', async () => {
+    it('should fetch media by username', async () => {
         // for cases where this test runs on empty db
         await _createMockMediaEntry();
-
-        const image = await MediaController.getMediaByUser(mockRegisterPayload.email);
+        const image = await MediaController.getMediaByUser(mockRegisterPayload.username);
 
         expect(image.length).toBeGreaterThan(0);
     })

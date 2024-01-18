@@ -23,25 +23,26 @@ export class MediaService {
         return mediaRepo.findOneBy({_id: id});
     }
 
-    static fetchMediaForUserProfile(username: string) {
+    static fetchMediaForUserProfile(usernameOrEmail: string) {
         const mediaRepo = AppDataSource.getRepository(Image);
 
         const queryBuilder = mediaRepo.createQueryBuilder('image');
         return queryBuilder.select('*')
         .limit(15)
         .leftJoin('image.user', 'users')
-        .where("users.preferredUsername = :username", {username})
+        .where("users.preferredUsername = :username", {username: usernameOrEmail})
+        .orWhere("users.email = :email", {email: usernameOrEmail})
         .execute()
     }
 
-    static fetchMediaCountByUser(username: string) {
+    static fetchMediaCountByUser(usernameOrEmail: string) {
         const mediaRepo = AppDataSource.getRepository(Image);
 
-        return mediaRepo.countBy({
-            user: {
-                preferredUsername: username
-            }
-        })
-
+        const queryBuilder = mediaRepo.createQueryBuilder('image');
+        return queryBuilder.select('*')
+        .leftJoin('image.user', 'users')
+        .where("users.preferredUsername = :username", {username: usernameOrEmail})
+        .orWhere("users.email = :email", {email: usernameOrEmail})
+        .getCount()
     }
 }

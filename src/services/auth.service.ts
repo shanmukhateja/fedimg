@@ -27,7 +27,9 @@ export class AuthService {
                 preferredUsername: params.username,
                 // Note: User can update this after login
                 displayName: params.username,
-                email: params.email,
+                // FIXME: improve email generation
+                email: `${params.username}@${serverInfo.hostname}`,
+                recovery_email: params.email,
                 password: hashedPassword,
                 followers: [],
                 publicKey,
@@ -45,7 +47,7 @@ export class AuthService {
 
     static async processLogin(email: string, password: string): Promise<User | APIErrorCodes> {
 
-        const user = await UserService.getUserByKey('email', email);
+        const user = await UserService.getUserByKey('recovery_email', email);
 
         if (!user) return APIErrorCodes.ERR_ACCOUNT;
 

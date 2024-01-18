@@ -42,6 +42,10 @@ export class User extends BaseEntity {
     @Column({ unique: true })
     email: string;
 
+    // email given to register account 
+    @Column({ unique: true })
+    recovery_email: string;
+
     @Column({ type: isTesting() ? 'text' : 'longtext' })
     password: string;
 
