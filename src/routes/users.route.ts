@@ -4,7 +4,7 @@ import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 import { User } from "../entity/User.js";
 import { renderPageWithUserInfo } from "../utils/render.js";
 
-const userRouter = Router();
+export const userRouter = Router();
 
 userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     renderPageWithUserInfo('home/profile.njk', req.user as User, res);
@@ -40,5 +40,3 @@ userRouter.post('/profile/update-name', ensureAuthenticated, async (req, res) =>
 
     res.redirect('/users/profile');
 })
-
-export { userRouter };

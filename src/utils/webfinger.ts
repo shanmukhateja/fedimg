@@ -1,6 +1,7 @@
 import { User } from "../entity/User";
 import { ServerInfo } from "../models/server-info.model";
 import { WellknownResponseModel } from "../models/well-known.model";
+import { getBaseURL } from "./url";
 
 export function processWebFingerResourceUri(uri: string) {
     if (uri.startsWith('acct:')) {
@@ -26,19 +27,19 @@ export function processWebFingerResourceUri(uri: string) {
 export function generateWellKnownResponse(user: User, serverInfo: ServerInfo): WellknownResponseModel {
     const { email: lookupUserEmail, avatar } = user;
     const payload = {
-        subject: lookupUserEmail,
+        subject: `acct:${lookupUserEmail}`,
         // TODO
         aliases: [],
         links: [
             {
                 rel: "http://webfinger.net/rel/profile-page",
                 type: "text/html",
-                href: `http://${serverInfo.hostname}/users/${lookupUserEmail}`
+                href: `${getBaseURL(serverInfo)}users/${lookupUserEmail}`
             },
             {
                 rel: "self",
                 type: "application/activity+json",
-                href: `http://${serverInfo.hostname}/users/${lookupUserEmail}`
+                href: `${getBaseURL(serverInfo)}users/${lookupUserEmail}`
             },
         ]
     }

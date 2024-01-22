@@ -67,8 +67,7 @@ import { getAssetsPath, getContentUploadPath } from './utils/path.js';
     // server info
     // Note: can this be improved?
     app.set('serverInfo', {
-        // FIXME: schema detection
-        schema: 'http',
+        schema: isProduction() ? 'https': 'http',
         hostname: process.env.FEDIMG_SERVER_HOSTNAME,
         port: process.env.FEDIMG_SERVER_PORT
     });

@@ -7,6 +7,7 @@ import { generateWellKnownResponse, processWebFingerResourceUri } from "./webfin
 import { User } from "../entity/User"
 import { UserService } from "../services/user.service"
 import { WellknownResponseModel } from "../models/well-known.model"
+import { getBaseURL } from "./url"
 
 describe('media controller tests', () => {
 
@@ -77,18 +78,18 @@ describe('media controller tests', () => {
         const result = generateWellKnownResponse(mockUser, mockServerInfo);
 
         const expectedResult: WellknownResponseModel = {
-            subject: mockRegisterPayload.email,
+            subject: `acct:${mockRegisterPayload.email}`,
             aliases: [],
             links: [
                 {
                     rel: "http://webfinger.net/rel/profile-page",
                     type: "text/html",
-                    href: `http://${mockServerInfo.hostname}/users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
                 },
                 {
                     rel: "self",
                     type: "application/activity+json",
-                    href: `http://${mockServerInfo.hostname}/users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
                 },
             ]
         }
@@ -109,18 +110,18 @@ describe('media controller tests', () => {
         const result = generateWellKnownResponse(mockUser, mockServerInfo);
 
         const expectedResult: WellknownResponseModel = {
-            subject: mockRegisterPayload.email,
+            subject: `acct:${mockRegisterPayload.email}`,
             aliases: [],
             links: [
                 {
                     rel: "http://webfinger.net/rel/profile-page",
                     type: "text/html",
-                    href: `http://${mockServerInfo.hostname}/users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
                 },
                 {
                     rel: "self",
                     type: "application/activity+json",
-                    href: `http://${mockServerInfo.hostname}/users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
                 },
                 {
                     "rel": "http://webfinger.net/rel/avatar",

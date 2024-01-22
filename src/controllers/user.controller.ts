@@ -31,20 +31,43 @@ export class UserController {
                 res.send({ error: 'Not found' });
                 return;
             }
-    
+
             const isJsonLDRequired = req.accepts('application/ld+json') || req.accepts('application/activity+json');
             const isHTMLRequired = req.accepts('html');
-    
+
             if (isHTMLRequired) {
                 let determineUser: User = null;
                 determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
                 renderPageWithUserInfo('home/profile.njk', determineUser, res);
-                return;
+            } else if (isJsonLDRequired) {
+                res
+                .setHeader('Content-Type', 'application/jrd+json; charset=utf-8')
+                .send({
+                    '@context': [
+                        'https://www.w3.org/ns/activitystreams',
+                        {
+                            "toot": "http://joinmastodon.org/ns#",
+                            "alsoKnownAs": {
+                                "@id": "as:alsoKnownAs",
+                                "@type": "@id"
+                            },
+                            "movedTo": {
+                                "@id": "as:movedTo",
+                                "@type": "@id"
+                            },
+                            "indexable": "toot:indexable"
+                        }
+                    ],
+                    inbox: `${user.id}/inbox`,
+                    outbox: `${user.id}/outbox`,
+                    followers: `${user.id}/followers`,
+                    following: `${user.id}/following`,
+                    indexable: true,
+                    ...user
+                });
+            } else {
+                res.send(400);
             }
-    
-            // TODO: Make it JSON+LD like.
-    
-            res.send(user);
         } catch (error) {
             console.error(error);
             res.sendStatus(500)
