@@ -8,7 +8,7 @@ import { User } from "../entity/User.js";
 
 export const mediaRouter = Router();
 
-
+// Used to upload media before Create activity is sent.
 mediaRouter.post('', passport.authenticate('session'), ensureAuthenticated, multerConfig.single('media'), async (req, res) => {
     try {
         const params: UploadMediaAPIPayloadModel = {
@@ -21,6 +21,7 @@ mediaRouter.post('', passport.authenticate('session'), ensureAuthenticated, mult
         const media = await MediaController.createMediaEntry(params, user);
 
         res.send({
+                // FIXME: id must be a HTTP URL to view image and comments
                 id: media._id,
                 type: 'Image',
                 preview_url: media.path,

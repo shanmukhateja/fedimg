@@ -12,6 +12,27 @@ export function ensureAuthenticated(req: Request, res: Response, next: NextFunct
     }
 }
 
+/**
+ * This function will verify whether resource being accessed is owned by the authenticated user. 
+ * @param req Request
+ * @param res Response
+ * @param next Callback function
+ */
+export function ensureSelfAuthenticated(req: Request, res: Response, next: NextFunction) {
+    if (!req.isAuthenticated()) {
+        return res.sendStatus(401);
+    }
+
+    // FIXME: add more ways to detect incoming resource
+    const {usernameOrEmail} = req.params;
+    const authUser = req.user as User;
+    if (usernameOrEmail == authUser.preferredUsername || usernameOrEmail == authUser.email) {
+        next();
+    } else {
+        return res.sendStatus(403);
+    }
+}
+
 export const sessionConfig = session({ 
     secret: process.env.FEDIMG_SESSION_SECRET, 
     cookie: { 

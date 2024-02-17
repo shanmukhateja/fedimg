@@ -36,7 +36,7 @@ export class User extends BaseEntity {
     @Column({ type: 'json' })
     publicKey: UserPublicKey
 
-    @Column({ type: isTesting() ? 'text' : 'longtext' })
+    @Column({ type: isTesting() ? 'text' : 'longtext', nullable: true })
     privateKey: string;
 
     @Column({ unique: true })
@@ -54,6 +54,9 @@ export class User extends BaseEntity {
 
     @Column({ type: isTesting() ? 'text' : 'longtext', nullable: true, default: null })
     attachments: Attachment[];
+
+    @Column({ type: 'boolean', default: true })
+    isLocal: boolean;
 
     validPassword(password: string) {
         return UserController.validatePasswordByUsername(this.preferredUsername, password);

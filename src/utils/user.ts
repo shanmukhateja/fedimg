@@ -3,6 +3,13 @@ import { ServerInfo } from "../models/server-info.model.js";
 import { UserKeysInfo } from "../models/api/user-keys.model.js";
 import { getBaseURL } from "./url.js";
 
+
+export function generateUserEmailFromId(id: string) {
+	const url = new URL(id);
+
+	return `${url.host}/${url.pathname}`;
+}
+
 export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): boolean {
     const split = userNameOrEmail.split('@');
     const isEmail = split.length > 1;
