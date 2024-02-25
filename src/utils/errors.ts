@@ -3,7 +3,8 @@ export enum APIErrorCodes {
     ERR_INVALID = "ERR_INVALID",
     ERR_TAKEN = "ERR_TAKEN",
     ERR_ACCOUNT = "ERR_ACCOUNT",
-    ERR_PASSWORD = "ERR_PASSWORD"
+    ERR_PASSWORD = "ERR_PASSWORD",
+    ERR_NOT_ALLOWED = "ERR_NOT_ALLOWED"
 }
 
 export interface APIError {
@@ -33,6 +34,12 @@ const APIErrorList: APIError[] = [
         error: APIErrorCodes.ERR_ACCOUNT,
         key: 'invalidAccount',
         description: 'This account does not exist.',
+        
+    },
+    {
+        error: APIErrorCodes.ERR_NOT_ALLOWED,
+        key: 'notAllowed',
+        description: 'This account is disabled.',
         
     },
     {

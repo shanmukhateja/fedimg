@@ -4,4 +4,5 @@ export interface RegisterUserApiPayload {
     password: string;
     agreement: 'TRUE';
     locale: string;
+    isLocal?: boolean
 }

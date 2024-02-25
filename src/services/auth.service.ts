@@ -51,6 +51,8 @@ export class AuthService {
 
         if (!user) return APIErrorCodes.ERR_ACCOUNT;
 
+        if (!user.isLocal) return APIErrorCodes.ERR_NOT_ALLOWED;
+
         const isPasswordOkay = await user.validPassword(password);
 
         if (!isPasswordOkay) return APIErrorCodes.ERR_PASSWORD;

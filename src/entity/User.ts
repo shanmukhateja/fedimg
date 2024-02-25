@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserController } from "../controllers/user.controller.js";
 import { UserPublicKey } from "../models/api/user-keys.model.js";
 import { Attachment, Icon, Tag } from "../models/user-info-response.model.js";
@@ -27,6 +27,7 @@ export class User extends BaseEntity {
     preferredUsername: string;
 
     @ManyToMany(() => User)
+    @JoinTable()
     followers: User[];
 
     // FIXME: setup callbacks to increment/decrement this value.
@@ -55,7 +56,7 @@ export class User extends BaseEntity {
     @Column({ type: isTesting() ? 'text' : 'longtext', nullable: true, default: null })
     attachments: Attachment[];
 
-    @Column({ type: 'boolean', default: true })
+    @Column({ default: true })
     isLocal: boolean;
 
     validPassword(password: string) {

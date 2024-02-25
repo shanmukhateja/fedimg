@@ -1,8 +1,11 @@
+import { AppDataSource } from "../data-source"
+import { User } from "../entity/User"
 import { RegisterUserApiPayload } from "../models/api/register-user-api.model"
 import { ServerInfo } from "../models/server-info.model"
+import { AuthService } from "../services/auth.service"
 import { generateUserId, generateUserKey, verifyUserIsLocal } from "./user"
 
-describe('media controller tests', () => {
+describe('user utils tests', () => {
 
     const mockServerInfo: ServerInfo = {
         hostname: 'mock.local',
@@ -18,29 +21,51 @@ describe('media controller tests', () => {
         username: 'mockuser'
     }
 
-    const mockValidDevUserId = `http://${mockServerInfo.hostname}:${mockServerInfo.port}/users/${mockRegisterPayload.username}`
-    const mockValidProdUserId = `http://${mockServerInfo.hostname}/users/${mockRegisterPayload.username}`;
+    let mockValidDevUserId = `http://${mockServerInfo.hostname}:${mockServerInfo.port}/users/`
+    let mockValidProdUserId = `http://${mockServerInfo.hostname}/users/`;
 
-    it('should return false when username is providedd', () => {
-        const result = verifyUserIsLocal(mockServerInfo, mockRegisterPayload.username);
-        expect(result).toBeFalse();
+    beforeAll(async () => {
+        await AppDataSource.initialize();
+        const userRepo = AppDataSource.getRepository(User);
+
+        const index = await userRepo.count();
+
+        const username = `user${index + 1}`;
+
+        mockRegisterPayload.email = `${username}@${mockServerInfo.hostname}`;
+        mockRegisterPayload.username = username;
+
+        // create a user
+        await AuthService.registerUserAPI(mockServerInfo, mockRegisterPayload);
+
+        mockValidDevUserId = mockValidDevUserId+mockRegisterPayload.username;
+        mockValidProdUserId = mockValidProdUserId+mockRegisterPayload.username;
     })
 
-    it('should verify user is local test 1', () => {
-        const result = verifyUserIsLocal(mockServerInfo, mockRegisterPayload.email);
+    afterAll(async () => {
+        await AppDataSource.destroy();
+    })
+
+    it('should return false when username is provided', async () => {
+        const result = await verifyUserIsLocal(mockServerInfo, mockRegisterPayload.username);
         expect(result).toBeTrue();
     })
 
-    it('should verify user is local test 2', () => {
+    it('should verify user is local test 1', async () => {
+        const result = await verifyUserIsLocal(mockServerInfo, mockRegisterPayload.email);
+        expect(result).toBeTrue();
+    })
+
+    it('should verify user is local test 2', async () => {
         const mockUserEmail = `@${mockRegisterPayload.email}`;
-        const result = verifyUserIsLocal(mockServerInfo, mockUserEmail);
+        const result = await verifyUserIsLocal(mockServerInfo, mockUserEmail);
 
         expect(result).toBeTrue();
     })
 
-    it('should verify user is local test 3', () => {
+    it('should verify user is local test 3', async () => {
         const mockUserEmail = `@mockuser@example.com`;
-        const result = verifyUserIsLocal(mockServerInfo, mockUserEmail);
+        const result = await verifyUserIsLocal(mockServerInfo, mockUserEmail);
 
         expect(result).toBeFalse();
     })

@@ -5,6 +5,9 @@ import { User } from "../entity/User.js";
 import { renderPageWithUserInfo } from "../utils/render.js";
 import { ensureSigned } from "../middlewares/signature.middleware.js";
 import { ActivityController } from "../controllers/activity.controller.js";
+import { UserService } from "../services/user.service.js";
+import { generateCollectionResponse } from "../utils/collection.js";
+import { generateFullURL } from "../utils/url.js";
 
 export const userRouter = Router();
 
@@ -12,16 +15,52 @@ userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     renderPageWithUserInfo('home/profile.njk', req.user as User, res);
 })
 
-userRouter.post('/:usernameOrEmail/inbox', async (req, res) => {
+userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
 
     const { type } = req.body;
     const typeValue = ActivityController.determineActivityType(type);
     if (typeValue == 'AS') {
         ActivityController.handleActivityStreamEvent(req.body, res);
-		return;
+        return;
     }
 
-	res.sendStatus(400);
+    res.sendStatus(400);
+})
+
+userRouter.get('/:usernameOrEmail/followers', async (req, res) => {
+
+    const { usernameOrEmail } = req.params;
+    const { page } = req.query;
+
+    // Send OrderedCollection response
+    if (!page) {
+
+        const followers = await UserService.getAllFollowers(usernameOrEmail);
+
+        const id = generateFullURL(req);
+
+        return res.send(generateCollectionResponse(followers, id));
+    }
+
+    res.send(422);
+})
+
+userRouter.get('/:usernameOrEmail/following', async (req, res) => {
+
+    const { usernameOrEmail } = req.params;
+    const { page } = req.query;
+
+    const followers = await UserService.getAllFollowing(usernameOrEmail);
+
+    // Send OrderedCollection response
+    if (!page) {
+
+        const id = generateFullURL(req);
+
+        return res.send(generateCollectionResponse(followers, id));
+    }
+
+    res.send(422);
 })
 
 userRouter.get('/:usernameOrEmail', UserController.handleUserByNameOrEmail);

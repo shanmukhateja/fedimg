@@ -7,7 +7,7 @@ import { verifyUserIsLocal } from "./user.js";
 
 
 export async function renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
-    const isUserLocal = verifyUserIsLocal(res.app.get('serverInfo'), user.email);
+    const isUserLocal = await verifyUserIsLocal(res.app.get('serverInfo'), user.email);
 
     // remote accounts don't support listing posts or post count
     let postsCount = 0;

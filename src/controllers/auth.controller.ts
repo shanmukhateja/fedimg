@@ -61,7 +61,8 @@ export class AuthController {
             email,
             password,
             locale,
-            agreement: "TRUE"
+            agreement: "TRUE",
+            isLocal: true
         });
 
         if (userOrError instanceof User) {

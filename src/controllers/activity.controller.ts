@@ -1,8 +1,10 @@
 import { Response } from "express";
 import { ActivityStreamTypes, FollowActivityModel } from "../models/activity.model";
 import { User } from "../entity/User";
-import { generateUserEmailFromId, verifyUserIsLocal } from "../utils/user";
+import { generateEmailAndUsernameFromId, verifyUserIsLocal } from "../utils/user";
 import { UserService } from "../services/user.service";
+import { AuthService } from "../services/auth.service";
+import { ServerInfo } from "../models/server-info.model";
 
 export class ActivityController {
 
@@ -59,37 +61,53 @@ export class ActivityController {
 	}
 
 	private static async handleFollowEvent(activity: FollowActivityModel, res: Response) {
+		// FIXME: assuming it's always "Accept"
+		
 		const { actor, object } = activity;
 
-		const serverInfo = res.req.app.get('serverInfo');
-		const actorEmail = generateUserEmailFromId(actor.id);
-		// FIXME: assuming it's always "Accept"
+		if (activity.to !== object.id) {
+			res.sendStatus(400);
+		}
 
-		const isActorLocal = verifyUserIsLocal(serverInfo, actorEmail);
-		const objectEmail = generateUserEmailFromId(object.id);
-		const isObjectLocal = verifyUserIsLocal(serverInfo, objectEmail);
+		const serverInfo: ServerInfo = res.req.app.get('serverInfo');
 
-		if (!isActorLocal && !isObjectLocal) {
+		const actorData = generateEmailAndUsernameFromId(actor.id);
+		const objectData = generateEmailAndUsernameFromId(object.id);
+		
+		const actorEmail = actorData.email;
+		const isActorLocal = await verifyUserIsLocal(serverInfo, actorEmail);
+		const objectEmail = objectData.email;
+		const isObjectLocal = await verifyUserIsLocal(serverInfo, objectEmail);
+
+		if (!isActorLocal) {
 			res.status(400).json({error: "User don't belong to this domain."});
 			return;
 		}
 
-		
+		// The idea is to add `destActor` in srcActor's followers list. 
+		let srcActor: User = null;
+		let destArctor = null;
 
-		/*if (isActorLocal) {
-			const actorAccount = await UserService.getUserByKey('email', actorEmail);
-			if (!actorAccount) {
-				res.sendStatus(404);
-				return;
+		if (isActorLocal) {
+			srcActor = await UserService.getUserByKey('email', actorEmail);
+			if (isObjectLocal) {
+				destArctor = await UserService.getUserByKey('email', objectEmail);
+			} else {
+				// need to create user acc for destActor.
+				destArctor = await AuthService.registerUserAPI(serverInfo, {
+					agreement: 'TRUE',
+					email: objectEmail,
+					locale: 'en',
+					// FIXME: need to generate secure password
+					password: 'changeme',
+					username: objectData.username,
+					isLocal: false
+				});
 			}
+		}
 
-			// Create "local user" for remote user
-			const user = new User();
-			user
-
-			if (!actorAccount.followers) actorAccount.followers = [];
-			actorAccount.followers?.push(user);
-		}*/
+		// Add follower & save to db
+		await UserService.addFollower(srcActor, destArctor);
 
 		res.sendStatus(200);
 	}

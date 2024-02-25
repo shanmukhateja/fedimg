@@ -2,26 +2,33 @@ import { generateKeyPair } from "crypto";
 import { ServerInfo } from "../models/server-info.model.js";
 import { UserKeysInfo } from "../models/api/user-keys.model.js";
 import { getBaseURL } from "./url.js";
+import { UserService } from "../services/user.service.js";
 
 
-export function generateUserEmailFromId(id: string) {
-	const url = new URL(id);
+export function generateEmailAndUsernameFromId(id: string) {
+    const url = new URL(id);
 
-	return `${url.host}/${url.pathname}`;
+    const lastItemOfPathname = url.pathname.split('/');
+    const emailSuffix = lastItemOfPathname[lastItemOfPathname.length - 1];
+    return {
+        email: `${emailSuffix}@${url.host}`,
+        username: emailSuffix
+    }
 }
 
-export function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): boolean {
+export async function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): Promise<boolean> {
     const split = userNameOrEmail.split('@');
-    const isEmail = split.length > 1;
+    const hasPrefixAtChar = split[0] == '';
+    const isEmail = hasPrefixAtChar || userNameOrEmail.includes('@');
 
     // FIXME: improve this logic
-    if (isEmail) {
-        const domain = split[0] == '' ? split[2] : split[1];
+    if (isEmail) { 
+        const domain = hasPrefixAtChar ? split[2] : split[1];
         return domain == serverInfo.hostname || domain.includes('localhost');
+    } else {
+        // assume username
+        return !!await UserService.getUserByKey('preferredUsername', userNameOrEmail);
     }
-    // TODO: add support for usernames only!
-
-    return false;
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {

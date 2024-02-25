@@ -12,7 +12,7 @@ export class UserController {
     static async handleUserByNameOrEmail(req: Request, res: Response) {
         try {
             const usernameOrEmail = req.params.usernameOrEmail;
-            const isUserLocal = verifyUserIsLocal(req.app.get('serverInfo'), usernameOrEmail);
+            const isUserLocal = await verifyUserIsLocal(req.app.get('serverInfo'), usernameOrEmail);
             let user = null;
             if (isUserLocal) {
                 user = await UserService.getUserByIdSafe(usernameOrEmail);
