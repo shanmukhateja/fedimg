@@ -37,5 +37,11 @@ export async function ensureSigned(req: Request, res: Response, next: NextFuncti
     }
 
 
+    // Transform body to JSON for simplicity.
+    try {
+        req.body = JSON.parse(req.body);
+    } catch (ignore) {
+        
+    }
     next();
 }

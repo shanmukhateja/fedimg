@@ -37,11 +37,19 @@ import { getAssetsPath, getContentUploadPath } from './utils/path.js';
     app.use(sessionConfig);
     app.use(passport.session());
 
-    app.use([
-        express.json(),
-        express.urlencoded({ extended: true }),
-        cors()
-    ]);
+    // `req.body` for /inbox URLs cannot be parsed as JSON 
+    // as it can lead to Digest calculation mismatch. 
+    const jsonParser = express.json();
+    const rawParser = express.raw({ type: "application/json" });
+
+    app.use((req, res, next) => {
+        if (req.path.includes('/inbox')) {
+            return rawParser(req, res, next);
+        }
+        jsonParser(req, res, next);
+    });
+
+    app.use(cors());
 
     // Nunjucks
     nunjucks.configure('src/views', {
