@@ -17,6 +17,7 @@ import { homeRouter } from './routes/home.route.js';
 import { wellKnownRouter } from './routes/well-known.route.js';
 
 import { getAssetsPath, getContentUploadPath } from './utils/path.js';
+import { nodeInfoRouter } from './routes/nodeinfo.route.js';
 
 ((async () => {
     // Initialize database
@@ -65,6 +66,7 @@ import { getAssetsPath, getContentUploadPath } from './utils/path.js';
 
     // Routes
     app.use('/.well-known', wellKnownRouter);
+    app.use('/nodeinfo', nodeInfoRouter);
     app.use('', viewsRouter);
     app.use('/auth', authRouter);
     app.use('/users', userRouter);

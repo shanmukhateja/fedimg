@@ -3,6 +3,8 @@ import { WellknownResponseModel } from "../models/well-known.model.js";
 import { UserService } from "../services/user.service.js";
 import { generateWellKnownResponse, processWebFingerResourceUri } from "../utils/webfinger.js";
 import { User } from "../entity/User.js";
+import { ServerInfo } from "../models/server-info.model.js";
+import { getBaseURL } from "../utils/url.js";
 
 const wellKnownRouter = Router();
 
@@ -31,5 +33,18 @@ wellKnownRouter.get('/webfinger', async (req, res) => {
     res.setHeader('Content-Type', 'application/jrd+json; charset=utf-8').send(payload);
 });
 
+
+wellKnownRouter.get('/nodeinfo', async (req, res) => {
+    const serverInfo: ServerInfo = req.app.get('serverInfo');
+
+    res.json({
+        "links": [
+            {
+                "rel": "http://nodeinfo.diaspora.software/ns/schema/2.0",
+                "href": `${getBaseURL(serverInfo)}nodeinfo/2.0`
+            }
+        ]
+    });
+});
 
 export { wellKnownRouter };

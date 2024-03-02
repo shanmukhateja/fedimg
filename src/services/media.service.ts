@@ -5,6 +5,12 @@ import { UploadMediaAPIInternalPayloadModel } from "../models/api/media-api.mode
 
 export class MediaService {
 
+    static getMediaCount() {
+        const mediaRepo = AppDataSource.getRepository(Image);
+        return mediaRepo.count();
+
+    }
+
     static createMediaEntry(params: UploadMediaAPIInternalPayloadModel, user: User) {
         const mediaRepo = AppDataSource.getRepository(Image);
         return mediaRepo.create({

@@ -4,6 +4,22 @@ import { PaginationModel } from "../models/pagination.model";
 
 export class UserService {
 
+    static async getUserStatistics() {
+        const userRepo = AppDataSource.getRepository(User);
+
+        const total = await userRepo.count({
+            where: {
+                isLocal: true
+            }
+        });
+
+        return {
+            total,
+            activeHalfyear: 0,
+            activeMonth: 0
+        }
+    }
+
     static async getUserById(username: string): Promise<User> {
         // strip '@' character if exists
         if (username.startsWith('@')) {
