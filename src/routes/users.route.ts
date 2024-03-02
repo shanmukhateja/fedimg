@@ -6,8 +6,9 @@ import { renderPageWithUserInfo } from "../utils/render.js";
 import { ensureSigned } from "../middlewares/signature.middleware.js";
 import { ActivityController } from "../controllers/activity.controller.js";
 import { UserService } from "../services/user.service.js";
-import { generateCollectionResponse } from "../utils/collection.js";
+import { generateCollectionPageResponse, generateCollectionResponse } from "../utils/collection.js";
 import { generateFullURL } from "../utils/url.js";
+import { PaginationModel } from "../models/pagination.model.js";
 
 export const userRouter = Router();
 
@@ -30,37 +31,42 @@ userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
 userRouter.get('/:usernameOrEmail/followers', async (req, res) => {
 
     const { usernameOrEmail } = req.params;
-    const { page } = req.query;
+    const page = req.query.page as string;
+    const limit = req.query.limit as string;
+    
+    // Note: `totalItems` will be set after db query
+    const paginationModel = new PaginationModel(page, limit, 0);
 
-    // Send OrderedCollection response
+    const followers = await UserService.getAllFollowers(usernameOrEmail, paginationModel);
+    const id = generateFullURL(req);
+
     if (!page) {
-
-        const followers = await UserService.getAllFollowers(usernameOrEmail);
-
-        const id = generateFullURL(req);
-
-        return res.send(generateCollectionResponse(followers, id));
+        return res.send(generateCollectionResponse(id, paginationModel));
     }
 
-    res.send(422);
+    return res.send(generateCollectionPageResponse<User>(followers, id, paginationModel ));
 })
 
 userRouter.get('/:usernameOrEmail/following', async (req, res) => {
 
     const { usernameOrEmail } = req.params;
     const { page } = req.query;
+    const id = generateFullURL(req);
 
-    const followers = await UserService.getAllFollowing(usernameOrEmail);
+    // @ts-ignore
+    const paginationModel = new PaginationModel(page, null, 0);
+
+    const following = await UserService.getAllFollowing(usernameOrEmail, paginationModel);
 
     // Send OrderedCollection response
     if (!page) {
 
         const id = generateFullURL(req);
 
-        return res.send(generateCollectionResponse(followers, id));
+        return res.send(generateCollectionResponse(id, paginationModel));
     }
 
-    res.send(422);
+    return res.send(generateCollectionPageResponse<User>(following, id, paginationModel ));
 })
 
 userRouter.get('/:usernameOrEmail', UserController.handleUserByNameOrEmail);

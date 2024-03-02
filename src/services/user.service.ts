@@ -1,5 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { User } from "../entity/User.js";
+import { PaginationModel } from "../models/pagination.model";
 
 export class UserService {
 
@@ -27,7 +28,10 @@ export class UserService {
 
         delete user._id;
         delete user.password;
+        delete user.publicKey;
         delete user.privateKey;
+        delete user.isLocal;
+        delete user.recovery_email;
 
         return user;
     }
@@ -51,7 +55,10 @@ export class UserService {
 
         delete user._id;
         delete user.password;
+        delete user.publicKey;
         delete user.privateKey;
+        delete user.isLocal;
+        delete user.recovery_email;
 
         return user;
     }
@@ -64,6 +71,7 @@ export class UserService {
             delete destActor.privateKey;
             delete destActor.tags;
             delete destActor.attachments;
+            delete destActor.recovery_email;
 
             // FIXME: Need to investigate.
             destActor.isLocal = false;
@@ -82,43 +90,83 @@ export class UserService {
         }
     }
 
-    static async getAllFollowers(usernameOrEmail: string) {
+    static async getAllFollowers(usernameOrEmail: string, paginationModel: PaginationModel) {
         const userRepo = AppDataSource.getRepository(User);
 
-        return await userRepo.createQueryBuilder('users')
+        let request$ = userRepo.createQueryBuilder('users')
             .loadAllRelationIds()
-            .select('users.*')
             .leftJoin('users.followers', 'followers')
-            .where('followers.preferredUsername = :usernameOrEmail', { usernameOrEmail })
-            .execute()
-            .then((followers: User[]) => followers.map(follower => {
+            // This is needed because `getManyAndCount()` discards
+            // previous select parameters
+            .addSelect('users.*')
+            .where('followers.preferredUsername = :usernameOrEmail', { usernameOrEmail });
+
+        const { page, limit } = paginationModel;
+
+        if (page) {
+            request$ = request$.skip(page * limit)
+                .take(limit)
+        }
+
+        // Execute query
+        return await request$.getManyAndCount()
+            .then((response) => {
+                const [followers, count] = response;
+                // set `totalItems` value
+                paginationModel.totalItems = count;
+
+                // safety
+                return followers.map(follower => {
+                    delete follower._id;
+                    delete follower.password;
+                    delete follower.publicKey;
+                    delete follower.privateKey;
+                    delete follower.isLocal;
+                    delete follower.recovery_email;
+
+                    return follower;
+                })
+            })
+    }
+
+    static async getAllFollowing(usernameOrEmail: string, paginationModel: PaginationModel) {
+        const userRepo = AppDataSource.getRepository(User);
+
+        let request$ = userRepo.createQueryBuilder('users')
+            .loadAllRelationIds()
+            .leftJoin('users.followers', 'followers')
+            // This is needed because `getManyAndCount()` discards
+            // previous select parameters
+            .addSelect('users.*')
+            .where('followers.preferredUsername = :usernameOrEmail', { usernameOrEmail });
+
+        const { page, limit } = paginationModel;
+
+        // PAGE
+        if (page) {
+            request$ = request$.skip(page * limit)
+            .take(limit)
+        }
+
+        // Execute query
+        return await request$.getManyAndCount()
+        .then(response => {
+            const [ followers, count ] = response;
+            // set `totalItems` value
+            paginationModel.totalItems = count;
+
+            // safety
+            return followers.map(follower => {
                 delete follower._id;
                 delete follower.password;
+                delete follower.publicKey;
                 delete follower.privateKey;
+                delete follower.isLocal;
+                delete follower.recovery_email;
 
                 return follower;
             })
-        )
-    }
-    
-    static async getAllFollowing(usernameOrEmail: string) {
-        const userRepo = AppDataSource.getRepository(User);
-
-        return await userRepo.createQueryBuilder('users')
-            .loadAllRelationIds()
-            .select('users.*')
-            .leftJoin('users.followers', 'followers')
-            .where('followers.preferredUsername = :usernameOrEmail', { usernameOrEmail })
-            .execute()
-            .then((followers: User[]) => followers.map(follower => {
-                delete follower._id;
-                delete follower.password;
-                delete follower.privateKey;
-
-                return follower;
-            })
-        )
+        });
     }
 
-    
 }
