@@ -92,7 +92,7 @@ export class HttpSignature {
 
     async resolveKeyId() {
         const keyIdUrl = new URL(this.keyId);
-        const url = `https://${keyIdUrl.host}/${keyIdUrl.pathname}`;
+        const url = `https://${keyIdUrl.host}${keyIdUrl.pathname}`;
         try {
             const result: UserInfoResponseModel = await fetchRemoteDataFromURL(url);
             this.actorPublicKey = result.publicKey;

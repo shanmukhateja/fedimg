@@ -21,8 +21,7 @@ userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
     const { type } = req.body;
     const typeValue = ActivityController.determineActivityType(type);
     if (typeValue == 'AS') {
-        ActivityController.handleActivityStreamEvent(req.body, res);
-        return;
+        return ActivityController.handleActivityStreamEvent(req.body, res);
     }
 
     res.sendStatus(400);

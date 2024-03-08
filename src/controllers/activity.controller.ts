@@ -25,12 +25,10 @@ export class ActivityController {
 		switch (type) {
 
 			case "Create":
-				this.handleCreateEvent(activity, res);
-				break;
+				return this.handleCreateEvent(activity, res);
 
 			case "Follow":
-				this.handleFollowEvent(activity, res);
-				break;
+				return this.handleFollowEvent(activity, res);
 
 			default:
 				console.log('sending 400 response');
@@ -109,6 +107,21 @@ export class ActivityController {
 		// Add follower & save to db
 		await UserService.addFollower(srcActor, destArctor);
 
-		res.sendStatus(200);
+		// Send "Accept" message
+		const acceptMessage = {
+			"@context" : "https://www.w3.org/ns/activitystreams",
+			"id"       : srcActor.id,
+			"type"     : "Accept",
+			"actor"    : srcActor.id,
+			"object"   : {
+				"@context" : "https://www.w3.org/ns/activitystreams",
+				"id"       :  srcActor.id,
+				"type"     :  ActivityStreamTypes.FOLLOW,
+				"actor"    :  destArctor,
+				"object"   : srcActor.id,
+			}
+		};
+
+		res.json(acceptMessage);
 	}
 }

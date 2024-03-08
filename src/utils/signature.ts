@@ -75,7 +75,6 @@ export function verifyDigestValue(originalDigest: string, data: string) {
     sign.update(payloadBuf);
 
     const out = sign.digest('base64');
-    console.log(out)
 
     return out == originalDigest;
 }
