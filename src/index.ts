@@ -47,10 +47,13 @@ import { nodeInfoRouter } from './routes/nodeinfo.route.js';
         if (req.path.includes('/inbox')) {
             return rawParser(req, res, next);
         }
-        jsonParser(req, res, next);
+        return jsonParser(req, res, next);
     });
 
-    app.use(cors());
+    app.use([
+        cors(),
+        express.urlencoded({extended: true})
+    ]);
 
     // Nunjucks
     nunjucks.configure('src/views', {
