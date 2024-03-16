@@ -25,7 +25,7 @@ export function processWebFingerResourceUri(uri: string) {
 }
 
 export function generateWellKnownResponse(user: User, serverInfo: ServerInfo): WellknownResponseModel {
-    const { email: lookupUserEmail, avatar } = user;
+    const { email: lookupUserEmail, avatar, preferredUsername } = user;
     const payload = {
         subject: `acct:${lookupUserEmail}`,
         // TODO
@@ -34,12 +34,12 @@ export function generateWellKnownResponse(user: User, serverInfo: ServerInfo): W
             {
                 rel: "http://webfinger.net/rel/profile-page",
                 type: "text/html",
-                href: `${getBaseURL(serverInfo)}users/${lookupUserEmail}`
+                href: `${getBaseURL(serverInfo)}users/${preferredUsername}`
             },
             {
                 rel: "self",
                 type: "application/activity+json",
-                href: `${getBaseURL(serverInfo)}users/${lookupUserEmail}`
+                href: `${getBaseURL(serverInfo)}users/${preferredUsername}`
             },
         ]
     }

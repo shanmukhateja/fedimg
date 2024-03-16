@@ -40,28 +40,22 @@ export class UserController {
                 determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
                 renderPageWithUserInfo('home/profile.njk', determineUser, res);
             } else if (isJsonLDRequired) {
+                user = user as User;
                 res
-                .setHeader('Content-Type', 'application/jrd+json; charset=utf-8')
+                .setHeader('Content-Type', 'application/activity+json; charset=utf-8')
                 .send({
                     '@context': [
                         'https://www.w3.org/ns/activitystreams',
-                        {
-                            "toot": "http://joinmastodon.org/ns#",
-                            "alsoKnownAs": {
-                                "@id": "as:alsoKnownAs",
-                                "@type": "@id"
-                            },
-                            "movedTo": {
-                                "@id": "as:movedTo",
-                                "@type": "@id"
-                            },
-                            "indexable": "toot:indexable"
-                        }
                     ],
+                    url: user.id,
                     inbox: `${user.id}/inbox`,
                     outbox: `${user.id}/outbox`,
                     followers: `${user.id}/followers`,
                     following: `${user.id}/following`,
+                    published: user.createdAt,
+                    // FIXME: this should be derived from app config
+                    manuallyApprovesFollowers: false,
+                    // FIXME: this should be derived from app config
                     indexable: true,
                     ...user
                 });
