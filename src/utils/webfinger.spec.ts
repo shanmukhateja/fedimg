@@ -84,12 +84,12 @@ describe('media controller tests', () => {
                 {
                     rel: "http://webfinger.net/rel/profile-page",
                     type: "text/html",
-                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.username}`
                 },
                 {
                     rel: "self",
                     type: "application/activity+json",
-                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.username}`
                 },
             ]
         }
@@ -116,12 +116,12 @@ describe('media controller tests', () => {
                 {
                     rel: "http://webfinger.net/rel/profile-page",
                     type: "text/html",
-                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.username}`
                 },
                 {
                     rel: "self",
                     type: "application/activity+json",
-                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.email}`
+                    href: `${getBaseURL(mockServerInfo)}users/${mockRegisterPayload.username}`
                 },
                 {
                     "rel": "http://webfinger.net/rel/avatar",

@@ -1,9 +1,10 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { User } from "./User.js";
 import { isTesting } from "../utils/misc.js";
+import { FediBaseEntity } from "./Base.js";
 
 @Entity()
-export class Image extends BaseEntity {
+export class Image extends FediBaseEntity {
     
     @PrimaryGeneratedColumn()
     _id: number;

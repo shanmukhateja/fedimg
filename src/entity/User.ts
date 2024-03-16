@@ -1,11 +1,12 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserController } from "../controllers/user.controller.js";
 import { UserPublicKey } from "../models/api/user-keys.model.js";
 import { Attachment, Icon, Tag } from "../models/user-info-response.model.js";
 import { isTesting } from "../utils/misc.js";
+import { FediBaseEntity } from "./Base.js";
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends FediBaseEntity {
 
     @PrimaryGeneratedColumn()
     _id: number;
@@ -58,6 +59,12 @@ export class User extends BaseEntity {
 
     @Column({ default: true })
     isLocal: boolean;
+
+    // @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    // createdAt: Date;
+
+    // @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
+    // updatedAt: Date;
 
     validPassword(password: string) {
         return UserController.validatePasswordByUsername(this.preferredUsername, password);
