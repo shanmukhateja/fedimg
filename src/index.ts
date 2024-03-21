@@ -41,7 +41,7 @@ import { nodeInfoRouter } from './routes/nodeinfo.route.js';
     // `req.body` for /inbox URLs cannot be parsed as JSON 
     // as it can lead to Digest calculation mismatch. 
     const jsonParser = express.json();
-    const rawParser = express.raw({ type: "application/json" });
+    const rawParser = express.raw({ type: '*/*' });
 
     app.use((req, res, next) => {
         if (req.path.includes('/inbox')) {

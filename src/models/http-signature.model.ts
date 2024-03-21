@@ -1,53 +1,67 @@
-import { verifyDigestValue } from "../utils/signature";
+import * as crypto from "crypto";
 import { fetchRemoteDataFromURL } from "../utils/url";
 import { PublicKey, UserInfoResponseModel } from "./user-info-response.model";
-import { Request } from "express";
+import { ed25519 } from "@noble/curves/ed25519";
 
 export interface HttpSignatureOptions {
-    request: Request
+    rawSignature: string,
+    headers: NodeJS.Dict<string | string[]>,
+    rawBody: string,
+    method: string,
+    path: string
 };
 
 export class HttpSignature {
 
     _impl: string;
+    _implObj: any;
+
+    options: HttpSignatureOptions = null;
 
     keyId: string;
     actorPublicKey: PublicKey = null;
 
-
-    incomingRequest: HttpSignatureOptions['request'];
     headers: string;
     signedHeaders: string[];
-    signedHeaderValues: string[];
+    signedHeaderValues: string;
 
     signature: string;
 
-    private KEYEQVALUE_REGEX = /\s*=\s*(.+)/;
-
-    constructor(impl: string, options: HttpSignatureOptions) {
-        this._impl = impl;
-        this.incomingRequest = options.request;
+    constructor(options: HttpSignatureOptions) {
+        this.options = options;
+        this._impl = options.rawSignature;
     }
 
     async parse() {
-        const split = this._impl.split(',');
+        this.parseRawHeader();
 
-        if (split.length != 3) {
-            return null;
-        }
+        if (!this._implObj) return null;
 
-        const [keyIdString, headersString, signatureString] = split;
+        const { keyId: keyIdString, headers: headersString, signature: signatureString } = this._implObj;
 
-        // https://stackoverflow.com/a/73395765
-        this.keyId = JSON.parse(keyIdString.split(this.KEYEQVALUE_REGEX).filter(e => e.length > 0)[1]);
-        this.headers = JSON.parse(headersString.split(this.KEYEQVALUE_REGEX).filter(e => e.length > 0)[1]);
-        this.signature = JSON.parse(signatureString.split(this.KEYEQVALUE_REGEX).filter(e => e.length > 0)[1]);
+        this.keyId = keyIdString;
+        this.headers = headersString;
+        this.signature = signatureString;
 
         this.parseHeaders();
 
         this.parseDigestHeader();
 
         await this.resolveKeyId();
+    }
+
+    parseRawHeader() {
+        const pairs = this._impl.split(',');
+
+        const jsonObject = {};
+
+        pairs.forEach(pair => {
+            let [key, value] = pair.split('=');
+            value = value.replace(/^"|"$/g, "");
+            jsonObject[key] = value;
+        });
+
+        this._implObj = jsonObject;
     }
 
     parseHeaders() {
@@ -58,16 +72,14 @@ export class HttpSignature {
         signedHeaders.forEach(header => {
             switch (header) {
                 case "(request-target)":
-                    headerValues.push({
-                        label: header,
-                        value: `${this.incomingRequest.method.toLowerCase()} ${this.incomingRequest.path.toLowerCase()}`
-                    });
+
+                    headerValues.push(`${header}: ${this.options.method.toLowerCase()} ${this.options.path.toLowerCase()}`);
                     break;
 
                 default:
-                    const value = this.incomingRequest.headers[header];
+                    const value = this.options.headers[header];
                     if (value)
-                        headerValues.push({ label: header, value })
+                        headerValues.push(`${header}: ${value}`)
                     break;
             }
         });
@@ -76,18 +88,15 @@ export class HttpSignature {
             throw new Error("Signature headers don't match request headers.");
         }
 
-        this.signedHeaderValues = headerValues;
+        this.signedHeaderValues = headerValues.reduce((prev, iter) => prev + '\n' + iter);
     }
 
     parseDigestHeader() {
-        const digest = this.incomingRequest.header('Digest');
-        if (this.incomingRequest.method == 'POST' && !digest) {
+        const digest = this.options.headers['digest'] as string;
+        if (this.options.method.toLowerCase() == 'post' && !digest) {
             throw new Error('Digest header is required for this request.');
         }
-
-        // FIXME: JSON.stringify strips whitespace in JSON body
-        // which will lead to hash mismatch.
-        verifyDigestValue(digest, JSON.stringify(this.incomingRequest.body));
+        return this.verifyDigestValue(digest, this.options.rawBody);
     }
 
     async resolveKeyId() {
@@ -99,6 +108,72 @@ export class HttpSignature {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    /**
+     * This function supports ED25519 and RSA-SHA256 algorithms to process signature verification.
+     * 
+     * @param key @type PublicKey to work with.
+     * @param data The data to verify the signature
+     * @param sig The base64 string which was sent in `Signature` header
+     * @returns true or false if valid.
+     */
+    verify() {
+        const key = crypto.createPublicKey(this.actorPublicKey.publicKeyPem);
+        const data = this.signedHeaderValues;
+        const sig = this.signature;
+
+        let isValid = false;
+
+        isValid = this.verifyWithED25519();
+        if (isValid) return isValid;
+
+        isValid = this.verifyWithRSASHA256(key, data, sig);
+
+        return isValid;
+    }
+
+    verifyWithED25519() {
+
+        try {
+            const key = this.actorPublicKey.publicKeyPem;
+            const data = this.signedHeaderValues;
+            const signature = this.signature;
+
+            const publicKeySplit = key.split('\n');
+
+            const publicKeyBase64 = Buffer.alloc(44, publicKeySplit[1], 'base64');
+            const publicKeySlice = publicKeyBase64.buffer.slice(12);
+            const publicKey = Buffer.from(publicKeySlice);
+
+            const sig = Buffer.from(signature, 'base64');
+
+            return ed25519.verify(sig, Buffer.from(data), publicKey);
+        } catch (error) {
+            console.error('Failed to verify key in ED25519 format.');
+            return false;
+        }
+    }
+
+    verifyWithRSASHA256(key: crypto.KeyObject, data: string, sig: string) {
+        try {
+            return crypto.verify('SHA256', Buffer.from(data), key, Buffer.from(sig, 'base64'));
+        } catch (error) {
+            console.error('Failed to verify key in RSA-SHA256 format.');
+            return false;
+        }
+    }
+
+    verifyDigestValue(originalDigest: string, data: string) {
+        const payloadBuf = Buffer.from(data);
+
+        const sign = crypto.createHash('RSA-SHA256');
+
+        sign.update(payloadBuf);
+
+        const out = sign.digest('base64');
+
+        return out == originalDigest;
     }
 
 }

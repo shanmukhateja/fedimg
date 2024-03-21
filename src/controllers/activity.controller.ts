@@ -58,9 +58,7 @@ export class ActivityController {
 		res.sendStatus(400);
 	}
 
-	private static async handleFollowEvent(activity: FollowActivityModel, res: Response) {
-		// FIXME: assuming it's always "Accept"
-		
+	private static async handleFollowEvent(activity: FollowActivityModel, res: Response) {		
 		const { actor, object } = activity;
 
 		if (activity.to !== object.id) {
@@ -107,6 +105,7 @@ export class ActivityController {
 		// Add follower & save to db
 		await UserService.addFollower(srcActor, destArctor);
 
+		// FIXME: we always reply with "Accept"
 		// Send "Accept" message
 		const acceptMessage = {
 			"@context" : "https://www.w3.org/ns/activitystreams",

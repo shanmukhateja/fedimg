@@ -44,7 +44,6 @@ export class UserService {
 
         delete user._id;
         delete user.password;
-        delete user.publicKey;
         delete user.privateKey;
         delete user.isLocal;
         delete user.recovery_email;
@@ -71,7 +70,6 @@ export class UserService {
 
         delete user._id;
         delete user.password;
-        delete user.publicKey;
         delete user.privateKey;
         delete user.isLocal;
         delete user.recovery_email;
@@ -83,7 +81,6 @@ export class UserService {
         try {
             // FIXME: This is awkward.
             delete destActor.avatar;
-            delete destActor.publicKey;
             delete destActor.privateKey;
             delete destActor.tags;
             delete destActor.attachments;
@@ -135,7 +132,6 @@ export class UserService {
                 return followers.map(follower => {
                     delete follower._id;
                     delete follower.password;
-                    delete follower.publicKey;
                     delete follower.privateKey;
                     delete follower.isLocal;
                     delete follower.recovery_email;
@@ -175,7 +171,6 @@ export class UserService {
             return followers.map(follower => {
                 delete follower._id;
                 delete follower.password;
-                delete follower.publicKey;
                 delete follower.privateKey;
                 delete follower.isLocal;
                 delete follower.recovery_email;
