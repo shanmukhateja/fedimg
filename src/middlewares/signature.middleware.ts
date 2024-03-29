@@ -8,6 +8,9 @@ export async function ensureSigned(req: Request, res: Response, next: NextFuncti
     try {
         rawBody = req.body.toString('utf-8');
         body = JSON.parse(rawBody);
+        req.body = body;
+        // FIXME: find a better way.
+        req['rawBody'] = rawBody;
     } catch (ignore) { }
 
     const signatureHeader = req.header('signature');

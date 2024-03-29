@@ -24,15 +24,25 @@ export class User extends FediBaseEntity {
     @Column()
     displayName: string;
 
-    @Column({ unique: true })
+    /**
+     * Note: usernames are not unique anymore because
+     * we need to register users with same usernames
+     * across the fediverse.
+     * However, email shall remain unique.
+     */
+    @Column()
     preferredUsername: string;
 
     @ManyToMany(() => User)
     @JoinTable()
     followers: User[];
 
+    @ManyToMany(() => User)
+    @JoinTable()
+    following: User[];
+
     // FIXME: setup callbacks to increment/decrement this value.
-    @Column({ default: 0, type: 'bigint' })
+    @Column({ type: 'bigint', default: 0 })
     followingCount: number;
 
     @Column({ type: 'json' })

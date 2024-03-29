@@ -16,19 +16,9 @@ export function generateEmailAndUsernameFromId(id: string) {
     }
 }
 
-export async function verifyUserIsLocal(serverInfo: ServerInfo, userNameOrEmail: string): Promise<boolean> {
-    const split = userNameOrEmail.split('@');
-    const hasPrefixAtChar = split[0] == '';
-    const isEmail = hasPrefixAtChar || userNameOrEmail.includes('@');
-
-    // FIXME: improve this logic
-    if (isEmail) { 
-        const domain = hasPrefixAtChar ? split[2] : split[1];
-        return domain == serverInfo.hostname || domain.includes('localhost');
-    } else {
-        // assume username
-        return !!await UserService.getUserByKey('preferredUsername', userNameOrEmail);
-    }
+export async function verifyUserIsLocal(userNameOrEmail: string): Promise<boolean> {
+    const userInfo = await UserService.getUserByKeys(['email', 'preferredUsername', 'recovery_email'], userNameOrEmail);
+    return userInfo?.isLocal;
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {
@@ -38,19 +28,17 @@ export function generateUserId(serverInfo: ServerInfo, username: string) {
 export async function generateUserKey(serverInfo: ServerInfo, username: string): Promise<UserKeysInfo> {
     return new Promise((resolve, reject) => {
 
-        generateKeyPair(
-            'ed25519', {
+        generateKeyPair('rsa', {
+            modulusLength: 2048, 
             publicKeyEncoding: {
-                type: 'spki',
+                type: 'pkcs1',
                 format: 'pem'
-            },
-            privateKeyEncoding: {
-                type: 'pkcs8',
+              },
+              privateKeyEncoding: {
+                type: 'pkcs1',
                 format: 'pem'
-            },
-        },
-            (err, publicKey, privateKey) => {
-
+              } 
+        }, (err, publicKey, privateKey) => {
                 if (err) {
                     reject(err);
                     return;

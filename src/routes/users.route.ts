@@ -18,13 +18,14 @@ userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
 
 userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
 
+    console.log('request body:', req.body);
     const { type } = req.body;
     const typeValue = ActivityController.determineActivityType(type);
     if (typeValue == 'AS') {
         return ActivityController.handleActivityStreamEvent(req.body, res);
     }
 
-    res.sendStatus(400);
+    res.sendStatus(404);
 })
 
 userRouter.get('/:usernameOrEmail/followers', async (req, res) => {

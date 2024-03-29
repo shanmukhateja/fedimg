@@ -51,6 +51,28 @@ export class UserService {
         return user;
     }
 
+    static async getUserByKeys<K extends keyof User>(keys: K[], value: any): Promise<User> {
+        const userRepo = AppDataSource.getRepository(User);
+
+        let builder = userRepo.createQueryBuilder()
+        .select('*');
+
+        keys.forEach((k, i) => {
+            if (i == 0) {
+                builder = builder.where({[k]: value})
+            } else {
+                builder = builder.orWhere({[k]: value})
+            }
+        });
+
+        const user = await builder.execute()
+            .then(users => users?.[0] || null);
+
+        if (!user) return null;
+
+        return user;
+    }
+
     static async getUserByKey<K extends keyof User>(key: K, value: any) {
         const userRepo = AppDataSource.getRepository(User);
 
@@ -77,7 +99,7 @@ export class UserService {
         return user;
     }
 
-    static async addFollower(srcActor: User, destActor: User) {
+    static async appendToFollowersCollection(srcActor: User, destActor: User) {
         try {
             // FIXME: This is awkward.
             delete destActor.avatar;
@@ -85,9 +107,6 @@ export class UserService {
             delete destActor.tags;
             delete destActor.attachments;
             delete destActor.recovery_email;
-
-            // FIXME: Need to investigate.
-            destActor.isLocal = false;
 
             if (!srcActor.followers) {
                 srcActor.followers = [];
@@ -97,6 +116,28 @@ export class UserService {
             const userRepo = AppDataSource.getRepository(User);
             await userRepo.manager.save(srcActor);
 
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    static async appendToFollowingCollection(srcActor: User, destActor: User) {
+        try {
+            // FIXME: This is awkward.
+            delete destActor.avatar;
+            delete destActor.privateKey;
+            delete destActor.tags;
+            delete destActor.attachments;
+            delete destActor.recovery_email;
+
+            if (!srcActor.following) {
+                srcActor.following = [];
+            }
+            srcActor.following = [...srcActor.following, destActor];
+
+            const userRepo = AppDataSource.getRepository(User);
+            await userRepo.manager.save(srcActor);
         } catch (error) {
             console.error(error);
             throw error;
@@ -178,6 +219,21 @@ export class UserService {
                 return follower;
             })
         });
+    }
+
+    /**
+     * Checks whether user is in `followers` collection.
+     */
+    static async checkUserIsFollowingMe(srcActorId: string, destActorId: string) {
+        const userRepo = AppDataSource.getRepository(User);
+
+        return userRepo.createQueryBuilder('users')
+        .loadAllRelationIds()
+        .leftJoin('users.followers', 'followers')
+        .addSelect('users.*')
+        .where('users.id = :srcId', {srcId: srcActorId})
+        .andWhere('followers.id = :id', {id: destActorId})
+        .execute();
     }
 
 }

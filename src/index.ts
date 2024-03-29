@@ -25,6 +25,11 @@ import { nodeInfoRouter } from './routes/nodeinfo.route.js';
 
     console.log('Database initialized.');
 
+    // global error handler
+    process.on('uncaughtException', error => {
+        console.error('<< Uncaught exception >>', error);
+    });
+
     const app = express();
 
     app.set('dbConn', dbConn);
@@ -54,6 +59,12 @@ import { nodeInfoRouter } from './routes/nodeinfo.route.js';
         cors(),
         express.urlencoded({extended: true})
     ]);
+
+    // Logs need to show remote server IP instead of localhost IPs.
+    // https://stackoverflow.com/a/55581790
+    if (isProduction()) {
+        app.set('trust proxy', true);
+    }
 
     // Nunjucks
     nunjucks.configure('src/views', {

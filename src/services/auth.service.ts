@@ -33,7 +33,8 @@ export class AuthService {
                 password: hashedPassword,
                 followers: [],
                 publicKey,
-                privateKey
+                privateKey,
+                isLocal: !!params.isLocal
             }
 
             return await userRepo.create(user)

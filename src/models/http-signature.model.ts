@@ -1,7 +1,9 @@
 import * as crypto from "crypto";
-import { fetchRemoteDataFromURL } from "../utils/url";
+import { fetchRemoteDataFromURL, getEmailFromId } from "../utils/url";
 import { PublicKey, UserInfoResponseModel } from "./user-info-response.model";
 import { ed25519 } from "@noble/curves/ed25519";
+import { ServerInfo } from "./server-info.model";
+import { UserService } from "../services/user.service";
 
 export interface HttpSignatureOptions {
     rawSignature: string,
@@ -29,7 +31,7 @@ export class HttpSignature {
 
     constructor(options: HttpSignatureOptions) {
         this.options = options;
-        this._impl = options.rawSignature;
+        this._impl = options?.rawSignature;
     }
 
     async parse() {
@@ -164,16 +166,63 @@ export class HttpSignature {
         }
     }
 
+    // Note: Buffer.from might be needed for `data` in some cases.
     verifyDigestValue(originalDigest: string, data: string) {
-        const payloadBuf = Buffer.from(data);
+        // const buffer = Buffer.from(data);
+        return this.computeDigest(data) == originalDigest;
+    }
 
-        const sign = crypto.createHash('RSA-SHA256');
+    computeDigest(payload: string) {
+        return crypto.createHash('sha256').update(payload).digest('base64');
+    }
 
-        sign.update(payloadBuf);
+    computeSignatureHeader(actorId: string, data: string, privateKey: crypto.KeyObject) {
+        const keyId = actorId + "#main-key";
+        const sig = crypto.sign('sha256', Buffer.from(data), privateKey).toString('base64');
+        return `keyId="${keyId}",headers="(request-target) host date digest",signature="${sig}"`;
+    }
 
-        const out = sign.digest('base64');
+    /**
+     * This function will generate Digest and Signature headers for a given data.
+     * @param options data required to generate HTTP Signature
+     * @returns the generated payload
+     */
+    async generate(options: {
+        inboxUrl: string,
+        data: object,
+        senderId: string,
+        recipientId: string,
+        serverInfo: ServerInfo
+    }) {
+        const digestData = JSON.stringify(options.data);
+        const digest = this.computeDigest(digestData);
 
-        return out == originalDigest;
+        // Populate headers
+        const urlObject = new URL(options.inboxUrl);
+        const remoteHost = new URL(options.recipientId).origin.replace('https://', '');
+
+        // Headers to be signed for signature header.
+        const currentDate = new Date();
+        const headers = [
+            `(request-target): post ${urlObject.pathname}`,
+            `host: ${remoteHost}`,
+            `date: ${currentDate.toUTCString()}`,
+            `digest: SHA-256=${digest}`
+        ].join('\n');
+        const senderUserEmail = getEmailFromId(options.senderId);
+        const senderActorInfo = await UserService.getUserByKey('email', senderUserEmail);
+        const privateKey = crypto.createPrivateKey(senderActorInfo.privateKey);
+
+        const signature = this.computeSignatureHeader(options.senderId, headers, privateKey);
+
+        return {
+            host: remoteHost,
+            date: currentDate.toUTCString(),
+            digest: `SHA-256=${digest}`,
+            "content-type": "application/json",
+            accept: "application/json",
+            signature
+        };
     }
 
 }

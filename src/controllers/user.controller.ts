@@ -12,7 +12,7 @@ export class UserController {
     static async handleUserByNameOrEmail(req: Request, res: Response) {
         try {
             const usernameOrEmail = req.params.usernameOrEmail;
-            const isUserLocal = await verifyUserIsLocal(req.app.get('serverInfo'), usernameOrEmail);
+            const isUserLocal = await verifyUserIsLocal(usernameOrEmail);
             let user = null;
             if (isUserLocal) {
                 user = await UserService.getUserByIdSafe(usernameOrEmail);
@@ -32,7 +32,7 @@ export class UserController {
                 return;
             }
 
-            const isJsonLDRequired = req.accepts('application/ld+json') || req.accepts('application/activity+json');
+            const isJsonLDRequired = req.accepts(['application/json', 'application/activity+json', 'application/ld+json']);
             const isHTMLRequired = req.accepts('html');
 
             if (isHTMLRequired) {

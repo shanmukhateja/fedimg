@@ -1,6 +1,8 @@
 export enum ActivityStreamTypes {
     CREATE = 'Create',
-    FOLLOW = 'Follow'
+    FOLLOW = 'Follow',
+	ACCEPT = 'Accept',
+    UNDO = 'Undo'
 }
 
 export interface CreateActivityModel {
@@ -13,17 +15,7 @@ export interface CreateActivityModel {
 export interface FollowActivityModel {
 	"@context": "https://www.w3.org/ns/activitystreams",
 	"type": ActivityStreamTypes.FOLLOW,
-	"actor": {
-	  "type": "Person",
-	  "id": string,
-	  "name": string
-	},
-	"object": {
-	  "type": "Person",
-	  "id": string,
-	  "name": string
-	},
-	// matches `object.id`
-	"to": string
+	"actor": string,
+	"object": string,
   }
   
