@@ -37,6 +37,11 @@ export class AuthService {
                 isLocal: !!params.isLocal
             }
 
+            // When creating an account foreign user (remote user), we save both email and recovery_email as the same.
+            if (!params.isLocal) {
+                user.email = user.recovery_email;
+            }
+
             return await userRepo.create(user)
                 .save()
         } catch (error) {
