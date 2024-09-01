@@ -115,9 +115,10 @@ export class ActivityController {
 				});
 			}
 
-			const isAlreadyFollowing = UserService.checkUserIsFollowingMe(objectUser.id, nonLocalAccountForActor.id);
+			const isAlreadyFollowing = await UserService.checkUserIsFollowingMe(objectUser.id, nonLocalAccountForActor.id);
 
 			if (isAlreadyFollowing) {
+				console.log(`User '${nonLocalAccountForActor.email}' is already following '${objectUser.email}', returning 204`);
 				res.sendStatus(204);
 				return;
 			}
@@ -172,8 +173,11 @@ export class ActivityController {
 			"@context": "https://www.w3.org/ns/activitystreams",
 			"id": `${getBaseURL(serverInfo)}${followRequestAcceptedId}`,
 			"type": ActivityStreamTypes.ACCEPT,
-			actor,
-			"object": res.req['rawBody']
+			"actor": activity.object,
+			// In order for Mastodon to allow us as a follower, we can either send 2 things:
+			// 1. original object in JSON object format (not JSON string)
+			// 2. follow request `id` which Mastodon sent us (can be found in `activity` parameter)
+			"object": JSON.parse(res.req['rawBody'])
 		};
 
 		// 1.b generate signature, digest headers
@@ -189,6 +193,7 @@ export class ActivityController {
 		// 1.c send the signed payload to receipient.
 		await sendRequest(url, 'POST', genSigHeaders, data)
 		.then(response => {
+			console.log('GOT RESPONSE FOR FOLLOW ACCEPT REQUEST.', response.headers);
 			console.log('GOT RESPONSE FOR FOLLOW ACCEPT REQUEST.', response.status);
 			console.log('GOT RESPONSE FOR FOLLOW ACCEPT REQUEST.', response.statusText);
 		})

@@ -227,13 +227,15 @@ export class UserService {
     static async checkUserIsFollowingMe(srcActorId: string, destActorId: string) {
         const userRepo = AppDataSource.getRepository(User);
 
-        return userRepo.createQueryBuilder('users')
+        const result: any[] = await userRepo.createQueryBuilder('users')
         .loadAllRelationIds()
         .leftJoin('users.followers', 'followers')
         .addSelect('users.*')
         .where('users.id = :srcId', {srcId: srcActorId})
         .andWhere('followers.id = :id', {id: destActorId})
         .execute();
+
+        return result.length > 0;
     }
 
 }
