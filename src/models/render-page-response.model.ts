@@ -5,6 +5,7 @@ export interface RenderPagePayload {
     isLoggedIn: boolean,
     showProfileEditOptions: boolean,
     loggedInUser?: RenderPagePayloadProfileUser,
+    isMyFollower?: boolean,
     metadata: {
         // FIXME: remove this hack
         followersCount: number

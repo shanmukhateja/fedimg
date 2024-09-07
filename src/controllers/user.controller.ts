@@ -9,6 +9,26 @@ import { UserService } from "../services/user.service.js";
 
 export class UserController {
 
+
+    /**
+     * 
+     * @param otherUserEmail The other user's email as provided in /users/@xxx@yyy.zzz
+     * @param loggedInUserEmail The logged in user's email
+     * @returns `true` if logged in user is following target user
+     */
+    static async checkUserIsFollower(otherUserEmail: string, loggedInUserEmail: string) {
+        
+        // const remoteUserEmail = generateRemoteUserEmail(loggedInUserEmail);
+
+        // TODO: use `res.req.user` here
+        const srcUser = await UserService.getUserByKey('email', loggedInUserEmail);
+
+        // FIXME: Do we check for `User.isLocal` here?
+        if (!srcUser) return false;
+
+        return !!srcUser.followers?.find(e => e.email == otherUserEmail);
+    }
+
     static async handleUserByNameOrEmail(req: Request, res: Response) {
         try {
             const usernameOrEmail = req.params.usernameOrEmail;

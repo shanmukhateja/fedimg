@@ -4,6 +4,7 @@ import { Image } from "../entity/Image.js";
 import { User } from "../entity/User.js";
 import { RenderPagePayload } from "../models/render-page-response.model.js";
 import { verifyUserIsLocal } from "./user.js";
+import { UserController } from "../controllers/user.controller.js";
 
 
 export async function renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
@@ -22,9 +23,18 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
 
     const isUserSameAsProfileUser = user._id && (res.req.user as User)?._id === user._id;
 
+    let isUserFollowingProfileUser = false;
+    if (res.req.user) {
+        isUserFollowingProfileUser = await UserController.checkUserIsFollower(
+            user.email.toString(), 
+            (res.req.user as User)?.email.toString()
+        );
+    }
+
     let renderPayload = {
         isLoggedIn: res.req.isAuthenticated(),
         showProfileEditOptions: isUserSameAsProfileUser,
+        isMyFollower: isUserFollowingProfileUser
     } as RenderPagePayload
 
     // Inject currently logged-in user info (if available)
