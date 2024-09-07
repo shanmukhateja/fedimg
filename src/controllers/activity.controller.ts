@@ -124,7 +124,7 @@ export class ActivityController {
 			}
 
 			// Update db
-			await UserService.appendToFollowingCollection(objectUser, nonLocalAccountForActor);
+			await UserService.appendToFollowersCollection(objectUser, nonLocalAccountForActor);
 		} else {
 			// A user from our domain has followed a user from some other domain.
 			// FIXME: Need to check and handle cases when users from same domain 
@@ -158,7 +158,7 @@ export class ActivityController {
 			}
 
 			// Append user to followers collection
-			await UserService.appendToFollowersCollection(srcActor, destArctor);
+			await UserService.appendToFollowingCollection(srcActor, destArctor);
 		}
 
 		// 1. Send "Accept" message as another request
