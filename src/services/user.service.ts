@@ -25,10 +25,7 @@ export class UserService {
         if (username.startsWith('@')) {
             username = username.slice(0);
         }
-        const userRepo = AppDataSource.getRepository(User);
-        const user = await userRepo.findOneBy({
-            preferredUsername: username
-        },);
+        const user = await this.getUserByKey('preferredUsername', username);
 
         if (!user) return null;
 
@@ -54,6 +51,7 @@ export class UserService {
     static async getUserByKeys<K extends keyof User>(keys: K[], value: any): Promise<User> {
         const userRepo = AppDataSource.getRepository(User);
 
+        // FIXME: add columns with relations here
         let builder = userRepo.createQueryBuilder()
         .select('*');
 
@@ -76,13 +74,17 @@ export class UserService {
     static async getUserByKey<K extends keyof User>(key: K, value: any) {
         const userRepo = AppDataSource.getRepository(User);
 
-        const user = await userRepo.findOneBy({
-            [key]: value
-        })
+        const user = await userRepo.find({
+            relations: {
+                followers: true
+            },
+            [key]: value,
+            take: 1
+        });
 
         if (!user) return null;
 
-        return user;
+        return user?.[0];
     }
 
     static async getUserByKeySafe<K extends keyof User>(key: K, value: any) {
