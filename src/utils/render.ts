@@ -4,7 +4,7 @@ import { Image } from "../entity/Image.js";
 import { User } from "../entity/User.js";
 import { RenderPagePayload } from "../models/render-page-response.model.js";
 import { verifyUserIsLocal } from "./user.js";
-import { UserController } from "../controllers/user.controller.js";
+import { UserService } from "../services/user.service.js";
 
 
 export async function renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
@@ -23,9 +23,19 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
 
     const isUserSameAsProfileUser = user._id && (res.req.user as User)?._id === user._id;
 
+    // followers collection
     let isUserFollowingProfileUser = false;
     if (res.req.user) {
-        isUserFollowingProfileUser = await UserController.checkUserIsFollower(
+        isUserFollowingProfileUser = await UserService.checkUserIsFollower(
+            user.email.toString(), 
+            (res.req.user as User)?.email.toString()
+        );
+    }
+
+    // following collection
+    let isUserFollowedByProfileUser = false;
+    if (res.req.user) {
+        isUserFollowedByProfileUser = await UserService.checkUserIsFollowed(
             user.email.toString(), 
             (res.req.user as User)?.email.toString()
         );
@@ -34,7 +44,8 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
     let renderPayload = {
         isLoggedIn: res.req.isAuthenticated(),
         showProfileEditOptions: isUserSameAsProfileUser,
-        isMyFollower: isUserFollowingProfileUser
+        isMyFollower: isUserFollowingProfileUser,
+        isFollowedByMe: isUserFollowedByProfileUser
     } as RenderPagePayload
 
     // Inject currently logged-in user info (if available)

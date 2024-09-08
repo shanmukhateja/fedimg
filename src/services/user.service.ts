@@ -76,7 +76,8 @@ export class UserService {
 
         const user = await userRepo.find({
             relations: {
-                followers: true
+                followers: true,
+                following: true
             },
             take: 1,
             where: {
@@ -235,20 +236,30 @@ export class UserService {
     }
 
     /**
-     * Checks whether user is in `followers` collection.
+     * 
+     * @param otherUserEmail The other user's email as provided in /users/@xxx@yyy.zzz
+     * @param loggedInUserEmail The logged in user's email
+     * @returns `true` if logged in user is following target user
      */
-    static async checkUserIsFollowingMe(srcActorId: string, destActorId: string) {
-        const userRepo = AppDataSource.getRepository(User);
+    static async checkUserIsFollower(otherUserEmail: string, loggedInUserEmail: string) {
+        
+        // const remoteUserEmail = generateRemoteUserEmail(loggedInUserEmail);
 
-        const result: any[] = await userRepo.createQueryBuilder('users')
-        .loadAllRelationIds()
-        .leftJoin('users.followers', 'followers')
-        .addSelect('users.*')
-        .where('users.id = :srcId', {srcId: srcActorId})
-        .andWhere('followers.id = :id', {id: destActorId})
-        .execute();
+        // TODO: use `res.req.user` here
+        const srcUser = await UserService.getUserByKey('email', loggedInUserEmail);
 
-        return result.length > 0;
+        // FIXME: Do we check for `User.isLocal` here?
+        if (!srcUser) return false;
+
+        return !!srcUser.followers?.find(e => e.email == otherUserEmail);
+    }
+
+    static async checkUserIsFollowed(otherUserEmail: string, loggedInUserEmail: string) {
+        const srcUser = await UserService.getUserByKey('email', loggedInUserEmail);
+
+        if (!srcUser) return false;
+
+        return !!srcUser.following?.find(e => e.email == otherUserEmail);
     }
 
 }

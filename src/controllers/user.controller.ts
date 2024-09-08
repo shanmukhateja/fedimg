@@ -7,8 +7,12 @@ import { verifyUserIsLocal } from "../utils/user.js";
 import { UserLookupController } from "./user-lookup.controller.js";
 import { UserService } from "../services/user.service.js";
 import { ActivityStreamTypes, FollowActivityModel } from "../models/activity.model.js";
-import { getIdFromEmail } from "../utils/url.js";
+import { generateASId, getBaseURL, getIdFromEmail, sendRequest } from "../utils/url.js";
 import { ActivityController } from "./activity.controller.js";
+import { UserLookupService } from "../services/user-lookup.service.js";
+import { AxiosError } from "axios";
+import { HttpSignature } from "../models/http-signature.model.js";
+import { ServerInfo } from "../models/server-info.model.js";
 
 export class UserController {
 
@@ -22,29 +26,69 @@ export class UserController {
             object,
         }
 
-
         console.log(followPayload);
 
         await ActivityController.handleActivityStreamEvent(followPayload, res);
     }
 
-    /**
-     * 
-     * @param otherUserEmail The other user's email as provided in /users/@xxx@yyy.zzz
-     * @param loggedInUserEmail The logged in user's email
-     * @returns `true` if logged in user is following target user
-     */
-    static async checkUserIsFollower(otherUserEmail: string, loggedInUserEmail: string) {
-        
-        // const remoteUserEmail = generateRemoteUserEmail(loggedInUserEmail);
+    static async handleDoUnfollow(userEmail: string, res: Response) {
+        const object = await getIdFromEmail(userEmail);
 
-        // TODO: use `res.req.user` here
-        const srcUser = await UserService.getUserByKey('email', loggedInUserEmail);
+        // remove user from logged in user's followers or following collection
+        const srcUser = await UserService.getUserById((res.req.user as User).preferredUsername);
+        if (!srcUser.following) srcUser.following = [];
 
-        // FIXME: Do we check for `User.isLocal` here?
-        if (!srcUser) return false;
+        // FIXME: currently hardcoded to removing foreign user from local user's following collection.
+        //        Need to support when remote server sends Unfollow request.
+        srcUser.following = srcUser.following?.filter(e => e.email !== userEmail);
+        await srcUser.save();
 
-        return !!srcUser.followers?.find(e => e.email == otherUserEmail);
+        // Send unfollow request to server.
+        // FIXME: this step is not needed when we receive unfollow request from remote server.
+        const objectUser = UserLookupService.parseUserInputString(userEmail);
+
+        const objectUserInboxURL = `https://${objectUser.domain}/users/${objectUser.username}/inbox`;
+
+        const serverInfo: ServerInfo = res.req.app.get('serverInfo');
+			// FIXME: do we need to save this id in db?
+			// FIXME: duplicate code
+			const followRequestAcceptedId = generateASId();
+			const httpSignature = new HttpSignature(null);
+
+            const unfollowPayload = {
+                "@context": "https://www.w3.org/ns/activitystreams",
+                type: ActivityStreamTypes.UNDO,
+                actor: (res.req.user as User).id,
+                object: {
+                    type: ActivityStreamTypes.FOLLOW,
+                    "id": `${getBaseURL(serverInfo)}${followRequestAcceptedId}`,
+                    actor: (res.req.user as User).id,
+                    object
+                },
+            }
+			// 1.b generate signature, digest headers
+			const genSigHeaders = await httpSignature.generate({
+				inboxUrl: objectUserInboxURL,
+				serverInfo,
+				senderId: unfollowPayload.actor,
+				recipientId:  object,
+				data: unfollowPayload
+			});
+
+			await sendRequest(objectUserInboxURL, 'POST', genSigHeaders, unfollowPayload)
+			.then(response => {
+				console.log('GOT RESPONSE FOR DO UNFOLLOW REQUEST.', response.headers);
+				console.log('GOT RESPONSE FOR DO UNFOLLOW REQUEST.', response.status);
+				console.log('GOT RESPONSE FOR DO UNFOLLOW REQUEST.', response.statusText);
+			})
+			.catch((error: AxiosError) => {
+				delete error.response?.request;
+				console.log('GOT ERROR FOR DO UNFOLLOW REQUEST');
+				console.error('error code: ', error.code)
+				console.error('request headers: ', error.request?._header)
+				console.error('generated headers: ', genSigHeaders)
+				console.error('response data: ', error.response.data)
+			});
     }
 
     static async handleUserByNameOrEmail(req: Request, res: Response) {

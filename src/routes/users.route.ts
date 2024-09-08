@@ -23,6 +23,17 @@ userRouter.post('/do-follow', ensureAuthenticated, async (req, res) => {
     console.log(req.body)
 
     await UserController.handleDoFollow(userEmail, res);
+    res.sendStatus(200);
+})
+
+userRouter.post('/do-unfollow', ensureAuthenticated, async (req, res) => {
+    const { userEmail } = req.body;
+
+    console.log(req.body);
+
+    await UserController.handleDoUnfollow(userEmail, res);
+    res.sendStatus(200);
+    
 })
 
 userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
