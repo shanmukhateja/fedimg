@@ -74,6 +74,12 @@ export class ActivityController {
 		const actorData = generateEmailAndUsernameFromId(actor);
 		const objectData = generateEmailAndUsernameFromId(object);
 
+		// Cannot have 2 accounts one for email with '@' and one w/o '@'
+		if (objectData.email.startsWith('@')) {
+			objectData.email = objectData.email.substring(1);
+			objectData.username = objectData.username.substring(1);
+		}
+
 		const actorEmail = actorData.email;
 		const objectEmail = objectData.email;
 		const isActorLocal = await verifyUserIsLocal(actorEmail);
@@ -134,20 +140,39 @@ export class ActivityController {
 			let srcActor: User = null;
 			let destArctor: User = null;
 
+			console.log('OBJECT EMAIL -> '+objectEmail);
+			console.log('ACTOR EMAIL  -> '+actorEmail);
+
+			console.log('locate local account for actor email -> ', actorEmail);
 			srcActor = await UserService.getUserByKey('email', actorEmail);
 			if (isObjectLocal) {
+				console.log('trying to locate remote account for email '+objectEmail + 'from our db');
 				destArctor = await UserService.getUserByKey('email', objectEmail);
 			} else {
-				// need to create user acc for destActor.
-				destArctor = await AuthService.registerUserAPI(serverInfo, {
-					agreement: 'TRUE',
-					email: objectEmail,
-					locale: 'en',
-					// FIXME: need to generate secure password
-					password: 'changeme',
-					username: objectData.username,
-					isLocal: false
-				});
+
+				// It seems objectEmail is a foreign user BUT we might have a `xxx-remote` account
+				// created previously. 
+				// Let's check the db first before creating account.
+
+				destArctor = await UserService.getRemoteUserByKey('email', objectEmail);
+
+				console.log('found destActor remote account', destArctor);
+
+				if (!destArctor) {
+					// need to create user acc for destActor.
+					console.log('remote account not found, creating one..');
+					destArctor = await AuthService.registerUserAPI(serverInfo, {
+						agreement: 'TRUE',
+						email: objectEmail,
+						locale: 'en',
+						// FIXME: need to generate secure password
+						password: 'changeme',
+						// this way we don't interfere with local accounts
+						username: objectData.username + '-remote',
+						isLocal: false
+					});
+				}
+
 			}
 
 			const isAlreadyFollowing = UserService.checkUserIsFollowingMe(srcActor.id, destArctor.id);

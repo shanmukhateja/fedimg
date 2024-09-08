@@ -3,6 +3,7 @@ import { ServerInfo } from "../models/server-info.model";
 import { isProduction } from "./misc.js";
 import { Request } from "express";
 import { randomUUID } from "crypto";
+import { UserLookupController } from "../controllers/user-lookup.controller";
 
 export function getBaseURL(serverInfo: ServerInfo) {
     return isProduction() ? `${serverInfo.schema}://${serverInfo.hostname}/` : `${serverInfo.schema}://${serverInfo.hostname}:${serverInfo.port}/`
@@ -17,6 +18,12 @@ export function getEmailFromId(userId: string) {
     const url = new URL(userId);
     return `${url.pathname.replace('/users/', '')}@${url.origin.replace(url.protocol + '//', '')}`
 
+}
+
+export async function getIdFromEmail(userEmail: string) {
+    const userInfo = await UserLookupController.lookupUser(userEmail);
+
+    return userInfo._id;
 }
 
 export async function fetchRemoteDataFromURL(url: string) {

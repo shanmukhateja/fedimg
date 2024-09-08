@@ -6,9 +6,27 @@ import { renderPageWithUserInfo } from "../utils/render.js";
 import { verifyUserIsLocal } from "../utils/user.js";
 import { UserLookupController } from "./user-lookup.controller.js";
 import { UserService } from "../services/user.service.js";
+import { ActivityStreamTypes, FollowActivityModel } from "../models/activity.model.js";
+import { getIdFromEmail } from "../utils/url.js";
+import { ActivityController } from "./activity.controller.js";
 
 export class UserController {
 
+    static async handleDoFollow(userEmail: string, res: Response) {
+        const object = await getIdFromEmail(userEmail);
+
+        const followPayload: FollowActivityModel = {
+            "@context": "https://www.w3.org/ns/activitystreams",
+            type: ActivityStreamTypes.FOLLOW,
+            actor: (res.req.user as User).id,
+            object,
+        }
+
+
+        console.log(followPayload);
+
+        await ActivityController.handleActivityStreamEvent(followPayload, res);
+    }
 
     /**
      * 

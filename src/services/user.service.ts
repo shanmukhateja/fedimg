@@ -71,15 +71,18 @@ export class UserService {
         return user;
     }
 
-    static async getUserByKey<K extends keyof User>(key: K, value: any) {
+    static async getUserByKey<K extends keyof User>(key: K, value: any, isRemote = false) {
         const userRepo = AppDataSource.getRepository(User);
 
         const user = await userRepo.find({
             relations: {
                 followers: true
             },
-            [key]: value,
-            take: 1
+            take: 1,
+            where: {
+                [key]: value,
+                isLocal: !isRemote
+            }
         });
 
         if (!user) return null;
@@ -97,6 +100,14 @@ export class UserService {
         delete user.privateKey;
         delete user.isLocal;
         delete user.recovery_email;
+
+        return user;
+    }
+
+    static async getRemoteUserByKey<K extends keyof User>(key: K, value: any) {
+        const user = await this.getUserByKey(key, value, true);
+
+        if (!user) return null;
 
         return user;
     }

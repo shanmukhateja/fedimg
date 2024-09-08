@@ -16,6 +16,15 @@ userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     renderPageWithUserInfo('home/profile.njk', req.user as User, res);
 })
 
+// Follow button in profile.njk will trigger this!
+userRouter.post('/do-follow', ensureAuthenticated, async (req, res) => {
+    const { userEmail } = req.body;
+
+    console.log(req.body)
+
+    await UserController.handleDoFollow(userEmail, res);
+})
+
 userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {
 
     console.log('request body:', req.body);
