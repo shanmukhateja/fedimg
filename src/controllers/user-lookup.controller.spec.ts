@@ -27,7 +27,12 @@ describe('user lookup tests', async () => {
                     "rel": "self",
                     "type": "application/activity+json",
                     "href": mockRemoteUserInfoURL
-                }
+                },
+                {
+                    "rel": "http://webfinger.net/rel/profile-page",
+                    "type": "text/html",
+                    "href": mockRemoteUserInfoURL
+                  },
             ]
         };
 

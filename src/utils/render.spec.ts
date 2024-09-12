@@ -75,6 +75,8 @@ describe('media controller tests', () => {
         const expectedResult: RenderPagePayload = {
             isLoggedIn: true,
             showProfileEditOptions: true,
+            isMyFollower: false,
+            isFollowedByMe: false,
             loggedInUser: {
                 name: mockRegisterPayload.username,
                 username: mockRegisterPayload.username,
@@ -123,6 +125,8 @@ describe('media controller tests', () => {
         const expectedResult: RenderPagePayload = {
             isLoggedIn: false,
             showProfileEditOptions: true,
+            isMyFollower: false,
+            isFollowedByMe: false,
             metadata: {
                 followersCount: 0,
                 followingCount: 0,
@@ -156,6 +160,8 @@ describe('media controller tests', () => {
         const expectedResult: RenderPagePayload = {
             isLoggedIn: false,
             showProfileEditOptions: false,
+            isMyFollower: false,
+            isFollowedByMe: false,
             metadata: {
                 followersCount: 0,
                 followingCount: 0,

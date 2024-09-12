@@ -34,6 +34,7 @@ describe('user utils tests', () => {
 
         mockRegisterPayload.email = `${username}@${mockServerInfo.hostname}`;
         mockRegisterPayload.username = username;
+        mockRegisterPayload.isLocal = true;
 
         // create a user
         await AuthService.registerUserAPI(mockServerInfo, mockRegisterPayload);
@@ -47,25 +48,25 @@ describe('user utils tests', () => {
     })
 
     it('should return false when username is provided', async () => {
-        const result = await verifyUserIsLocal(mockServerInfo, mockRegisterPayload.username);
+        const result = await verifyUserIsLocal(mockRegisterPayload.username);
         expect(result).toBeTrue();
     })
 
     it('should verify user is local test 1', async () => {
-        const result = await verifyUserIsLocal(mockServerInfo, mockRegisterPayload.email);
+        const result = await verifyUserIsLocal(mockRegisterPayload.email);
         expect(result).toBeTrue();
     })
 
     it('should verify user is local test 2', async () => {
         const mockUserEmail = `@${mockRegisterPayload.email}`;
-        const result = await verifyUserIsLocal(mockServerInfo, mockUserEmail);
+        const result = await verifyUserIsLocal(mockUserEmail);
 
         expect(result).toBeTrue();
     })
 
     it('should verify user is local test 3', async () => {
         const mockUserEmail = `@mockuser@example.com`;
-        const result = await verifyUserIsLocal(mockServerInfo, mockUserEmail);
+        const result = await verifyUserIsLocal(mockUserEmail);
 
         expect(result).toBeFalse();
     })
