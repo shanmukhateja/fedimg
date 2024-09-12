@@ -7,5 +7,7 @@ export const homeRouter = Router();
 
 homeRouter.get('', ensureAuthenticated, async (req, res) => {
     const user = req.user as User;
-    renderPageWithUserInfo('home/home.njk', user, res);
+    const {pageURL, renderPayload} = await renderPageWithUserInfo('home/home.njk', user, req);
+    
+    res.render(pageURL, renderPayload);
 })

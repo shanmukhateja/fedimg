@@ -13,7 +13,9 @@ import { PaginationModel } from "../models/pagination.model.js";
 export const userRouter = Router();
 
 userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
-    renderPageWithUserInfo('home/profile.njk', req.user as User, res);
+    const {pageURL, renderPayload} = await renderPageWithUserInfo('home/profile.njk', req.user as User, req);
+
+    res.render(pageURL, renderPayload);
 })
 
 // Follow button in profile.njk will trigger this!
