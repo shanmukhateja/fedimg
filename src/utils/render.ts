@@ -68,7 +68,7 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, req: R
         renderPayload.metadata = {
             // FIXME: remove this hack
             followersCount: (user.followers || []).length,
-            followingCount: user.followingCount,
+            followingCount: (user.following || []).length,
             postsCount,
             showFollowButton,
         }
