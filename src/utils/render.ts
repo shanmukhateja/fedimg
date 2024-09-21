@@ -1,13 +1,13 @@
-import { Response } from "express";
 import { MediaController } from "../controllers/media.controller.js";
 import { Image } from "../entity/Image.js";
 import { User } from "../entity/User.js";
 import { RenderPagePayload } from "../models/render-page-response.model.js";
 import { verifyUserIsLocal } from "./user.js";
-import { UserController } from "../controllers/user.controller.js";
+import { UserService } from "../services/user.service.js";
+import { Request } from "express";
 
 
-export async function renderPageWithUserInfo(pageURL: string, user: User, res: Response) {
+export async function renderPageWithUserInfo(pageURL: string, user: User, req: Request) {
     const isUserLocal = await verifyUserIsLocal(user.email);
 
     // remote accounts don't support listing posts or post count
@@ -21,25 +21,36 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
     // FIXME: implement
     const showFollowButton = true;
 
-    const isUserSameAsProfileUser = user._id && (res.req.user as User)?._id === user._id;
+    const isUserSameAsProfileUser = user._id && (req.user as User)?._id === user._id;
 
+    // followers collection
     let isUserFollowingProfileUser = false;
-    if (res.req.user) {
-        isUserFollowingProfileUser = await UserController.checkUserIsFollower(
+    if (req.user) {
+        isUserFollowingProfileUser = await UserService.checkUserIsFollower(
             user.email.toString(), 
-            (res.req.user as User)?.email.toString()
+            (req.user as User)?.email.toString()
+        );
+    }
+
+    // following collection
+    let isUserFollowedByProfileUser = false;
+    if (req.user) {
+        isUserFollowedByProfileUser = await UserService.checkUserIsFollowed(
+            user.email.toString(), 
+            (req.user as User)?.email.toString()
         );
     }
 
     let renderPayload = {
-        isLoggedIn: res.req.isAuthenticated(),
+        isLoggedIn: req.isAuthenticated(),
         showProfileEditOptions: isUserSameAsProfileUser,
-        isMyFollower: isUserFollowingProfileUser
+        isMyFollower: isUserFollowingProfileUser,
+        isFollowedByMe: isUserFollowedByProfileUser
     } as RenderPagePayload
 
     // Inject currently logged-in user info (if available)
     if (renderPayload.isLoggedIn) {
-        const user = res.req.user as User;
+        const user = req.user as User;
         renderPayload.loggedInUser = {
             name: user?.displayName,
             username: user?.preferredUsername,
@@ -57,7 +68,7 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
         renderPayload.metadata = {
             // FIXME: remove this hack
             followersCount: (user.followers || []).length,
-            followingCount: user.followingCount,
+            followingCount: (user.following || []).length,
             postsCount,
             showFollowButton,
         }
@@ -88,5 +99,8 @@ export async function renderPageWithUserInfo(pageURL: string, user: User, res: R
         renderPayload.posts = posts;
         renderPayload.metadata.postsCount = postsCount;
     }
-    res.render(pageURL, renderPayload)
+    return {
+        pageURL,
+        renderPayload
+    };
 }

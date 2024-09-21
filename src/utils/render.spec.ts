@@ -8,7 +8,7 @@ import { renderPageWithUserInfo } from "./render";
 import { UserService } from "../services/user.service";
 import { RenderPagePayload } from "../models/render-page-response.model";
 
-describe('media controller tests', () => {
+describe('utils/render.ts tests', () => {
 
     const mockServerInfo: ServerInfo = {
         hostname: 'mock.local',
@@ -70,11 +70,13 @@ describe('media controller tests', () => {
         mockRequest.user = mockUser;
         mockResponse.req = mockRequest;
 
-        await renderPageWithUserInfo(mockPageURL, mockUser, mockResponse);
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser, mockRequest);
 
         const expectedResult: RenderPagePayload = {
             isLoggedIn: true,
             showProfileEditOptions: true,
+            isMyFollower: false,
+            isFollowedByMe: false,
             loggedInUser: {
                 name: mockRegisterPayload.username,
                 username: mockRegisterPayload.username,
@@ -84,8 +86,8 @@ describe('media controller tests', () => {
                 userAttachments: []
             },
             metadata: {
-                followersCount: 0,
-                followingCount: 0,
+                followersCount: mockUser.followers.length,
+                followingCount: mockUser.following.length,
                 postsCount: 0,
                 showFollowButton: true
             },
@@ -100,7 +102,7 @@ describe('media controller tests', () => {
             posts: []
         }
 
-        expect(mockResponse.render).toHaveBeenCalledWith(mockPageURL, expectedResult);
+        expect(response).toEqual({pageURL: mockPageURL, renderPayload: expectedResult});
     })
 
     it('should render profile page for local user w/o authentication', async () => {
@@ -118,14 +120,16 @@ describe('media controller tests', () => {
         mockRequest.user = mockUser;
         mockResponse.req = mockRequest;
 
-        await renderPageWithUserInfo(mockPageURL, mockUser, mockResponse);
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser, mockRequest);
 
         const expectedResult: RenderPagePayload = {
             isLoggedIn: false,
             showProfileEditOptions: true,
+            isMyFollower: false,
+            isFollowedByMe: false,
             metadata: {
-                followersCount: 0,
-                followingCount: 0,
+                followersCount: mockUser.followers.length,
+                followingCount: mockUser.following.length,
                 postsCount: 0,
                 showFollowButton: true
             },
@@ -133,7 +137,7 @@ describe('media controller tests', () => {
             posts: []
         }
 
-        expect(mockResponse.render).toHaveBeenCalledWith(mockPageURL, expectedResult);
+        expect(response).toEqual({pageURL: mockPageURL, renderPayload: expectedResult});
     })
 
     it('should render profile page for remote user', async () => {
@@ -151,11 +155,13 @@ describe('media controller tests', () => {
         mockRequest.user = null;
         mockResponse.req = mockRequest;
 
-        await renderPageWithUserInfo(mockPageURL, mockUser, mockResponse);
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser, mockRequest);
 
         const expectedResult: RenderPagePayload = {
             isLoggedIn: false,
             showProfileEditOptions: false,
+            isMyFollower: false,
+            isFollowedByMe: false,
             metadata: {
                 followersCount: 0,
                 followingCount: 0,
@@ -173,7 +179,86 @@ describe('media controller tests', () => {
             posts: []
         }
 
-        expect(mockResponse.render).toHaveBeenCalledWith(mockPageURL, expectedResult);
+        expect(response).toEqual({pageURL: mockPageURL, renderPayload: expectedResult});
+    })
+
+    it('should pass `isMyFollower` test', async () => {
+        const mockUser = await UserService.getUserById(mockRegisterPayload.username);
+        const mockPageURL = 'home/profile.njk';
+
+        const mockUser2Index = parseInt(mockUser.preferredUsername.split('user')[1]) - 1;
+        const mockUser2Username = `user${mockUser2Index}`;
+        const mockUser2 = await UserService.getUserById(mockUser2Username);
+
+        expect(mockUser2).toBeTruthy();
+
+        const mockRequest = jasmine.createSpyObj<Request>('Request', ['user', 'isAuthenticated']);
+
+        // attach required attributes
+        mockRequest.isAuthenticated.and.returnValue(false);
+        mockRequest.user = mockUser;
+
+        // mockUser follows mockUser2
+        await UserService.appendToFollowersCollection(mockUser, mockUser2);
+
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser2, mockRequest);
+
+        expect(response.renderPayload.isMyFollower).toBeTrue();
+
+    })
+
+
+    it('should pass `isFollowedByMe` test', async () => {
+        const mockUser = await UserService.getUserById(mockRegisterPayload.username);
+        const mockPageURL = 'home/profile.njk';
+
+        const mockUser2Index = parseInt(mockUser.preferredUsername.split('user')[1]) - 1;
+        const mockUser2Username = `user${mockUser2Index}`;
+        const mockUser2 = await UserService.getUserById(mockUser2Username);
+
+        expect(mockUser2).toBeTruthy();
+
+        const mockRequest = jasmine.createSpyObj<Request>('Request', ['user', 'isAuthenticated']);
+
+        // attach required attributes
+        mockRequest.isAuthenticated.and.returnValue(false);
+        mockRequest.user = mockUser;
+
+        // mockUser follows mockUser2
+        await UserService.appendToFollowingCollection(mockUser, mockUser2);
+
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser2, mockRequest);
+
+        expect(response.renderPayload.isFollowedByMe).toBeTrue();
+
+    })
+
+    it('should have both `isFollowedByMe` an `isMyFollower` as true', async () => {
+        const mockUser = await UserService.getUserById(mockRegisterPayload.username);
+        const mockPageURL = 'home/profile.njk';
+
+        const mockUser2Index = parseInt(mockUser.preferredUsername.split('user')[1]) - 1;
+        const mockUser2Username = `user${mockUser2Index}`;
+        const mockUser2 = await UserService.getUserById(mockUser2Username);
+
+        expect(mockUser2).toBeTruthy();
+
+        const mockRequest = jasmine.createSpyObj<Request>('Request', ['user', 'isAuthenticated']);
+
+        // attach required attributes
+        mockRequest.isAuthenticated.and.returnValue(false);
+        mockRequest.user = mockUser;
+
+        // mockUser follows mockUser2
+        await UserService.appendToFollowersCollection(mockUser, mockUser2);
+        // mockUser2 follows back
+        await UserService.appendToFollowingCollection(mockUser2, mockUser);
+
+        const response = await renderPageWithUserInfo(mockPageURL, mockUser2, mockRequest);
+
+        expect(response.renderPayload.isFollowedByMe).toBeTrue();
+
+        expect(response.renderPayload.isMyFollower).toBeTrue();
     })
 
 })

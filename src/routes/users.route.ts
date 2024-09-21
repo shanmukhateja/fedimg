@@ -13,7 +13,29 @@ import { PaginationModel } from "../models/pagination.model.js";
 export const userRouter = Router();
 
 userRouter.get('/profile', ensureAuthenticated, async (req, res) => {
-    renderPageWithUserInfo('home/profile.njk', req.user as User, res);
+    const {pageURL, renderPayload} = await renderPageWithUserInfo('home/profile.njk', req.user as User, req);
+
+    res.render(pageURL, renderPayload);
+})
+
+// Follow button in profile.njk will trigger this!
+userRouter.post('/do-follow', ensureAuthenticated, async (req, res) => {
+    const { userEmail } = req.body;
+
+    console.log(req.body)
+
+    await UserController.handleDoFollow(userEmail, res);
+    res.sendStatus(200);
+})
+
+userRouter.post('/do-unfollow', ensureAuthenticated, async (req, res) => {
+    const { userEmail } = req.body;
+
+    console.log(req.body);
+
+    await UserController.handleDoUnfollow(userEmail, res);
+    res.sendStatus(200);
+    
 })
 
 userRouter.post('/:usernameOrEmail/inbox', ensureSigned, async (req, res) => {

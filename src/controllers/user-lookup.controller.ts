@@ -28,9 +28,11 @@ export class UserLookupController {
 
             const remoteUser: UserInfoResponseModel = await fetchRemoteDataFromURL(link.href);
 
+            const userIdLink = response.links.find(e => e.type.includes('html'));
+
             // mock 'User' object
             let user = {
-                _id: null,
+                _id: userIdLink.href,
                 displayName: remoteUser.name,
                 avatar: remoteUser.icon?.url,
                 preferredUsername: remoteUser.preferredUsername,

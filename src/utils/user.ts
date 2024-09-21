@@ -17,8 +17,19 @@ export function generateEmailAndUsernameFromId(id: string) {
 }
 
 export async function verifyUserIsLocal(userNameOrEmail: string): Promise<boolean> {
+    // FIXME: Need to add this in the entire codebase.
+    if (userNameOrEmail.startsWith('@')) {
+        userNameOrEmail = userNameOrEmail.substring(1);
+    }
     const userInfo = await UserService.getUserByKeys(['email', 'preferredUsername', 'recovery_email'], userNameOrEmail);
-    return userInfo?.isLocal;
+
+    if (!userInfo) return false;
+
+    // FIXME: better-sqlite3 stores `boolean` as `tinyint`
+    //        This code fails in tests unless we manually cast it back to boolean.
+    //        https://github.com/WiseLibs/better-sqlite3/issues/932
+    // @ts-ignore
+    return (userInfo?.isLocal) == 0 ? false: true;
 }
 
 export function generateUserId(serverInfo: ServerInfo, username: string) {
