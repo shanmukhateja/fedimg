@@ -120,7 +120,8 @@ export class UserController {
             if (isHTMLRequired) {
                 let determineUser: User = null;
                 determineUser = req.isAuthenticated() ? (req.user as User).email == user.email ? req.user : user : user;
-                renderPageWithUserInfo('home/profile.njk', determineUser, req);
+                const { pageURL, renderPayload } = await renderPageWithUserInfo('home/profile.njk', determineUser, req);
+                res.render(pageURL, renderPayload);
             } else if (isJsonLDRequired) {
                 user = user as User;
                 res
